@@ -1,10 +1,12 @@
 <?php
 namespace App\Models;
+use App\Support\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Depense extends Model
 {
+    use Auditable;
     public const CATEGORIES = [
         'projet'        => 'Projet',
         'prestation'    => 'Prestation (graphiste, …)',

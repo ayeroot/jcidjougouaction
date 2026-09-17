@@ -2,18 +2,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Mail\NouveauCompte;
 use App\Models\User;
 use App\Models\Membre;
+use App\Services\AccountService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+    public function __construct(private AccountService $comptes) {}
+
     /** Libellés lisibles des rôles (l'administrateur choisit dans cette liste). */
     public const ROLES = [
         'admin'      => 'Administrateur',
@@ -37,38 +35,36 @@ class UserController extends Controller
 
     public function create()
     {
+        // Seuls les membres n'ayant pas encore de compte peuvent être sélectionnés.
+        $membresSansCompte = Membre::whereDoesntHave('user')->whereNotNull('email')->orderBy('nom')->get();
         return view('admin.users.create', [
             'roles'   => self::ROLES,
-            'membres' => Membre::orderBy('nom')->get(),
+            'membres' => $membresSansCompte,
         ]);
     }
 
+    /**
+     * L'admin sélectionne un membre existant et lui attribue un rôle.
+     * Les informations personnelles proviennent de la fiche membre (aucune ressaisie).
+     * Un email d'activation est envoyé au membre pour qu'il définisse son mot de passe.
+     */
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name'      => ['required', 'string', 'max:255'],
-            'email'     => ['required', 'email', 'max:255', 'unique:users,email'],
+            'membre_id' => ['required', 'exists:membres,id'],
             'role'      => ['required', Rule::in(array_keys(self::ROLES))],
-            'membre_id' => ['nullable', 'exists:membres,id'],
         ]);
 
-        // L'administrateur crée l'identifiant ; un mot de passe provisoire est généré.
-        $motDePasse = Str::password(10);
+        $membre = Membre::findOrFail($data['membre_id']);
+        $res = $this->comptes->creerPourMembre($membre, $data['role']);
 
-        $user = User::create([
-            'name'      => $data['name'],
-            'email'     => $data['email'],
-            'password'  => Hash::make($motDePasse),
-            'membre_id' => $data['membre_id'] ?? null,
-        ]);
-        $user->syncRoles([$data['role']]);
+        if (! $res['user']) {
+            return back()->withInput()->with('ok', $res['message']);
+        }
 
-        // Chaque nouvel utilisateur reçoit un email avec ses identifiants.
-        $envoye = $this->envoyerEmail($user, $motDePasse, self::ROLES[$data['role']]);
-
-        $msg = $envoye
-            ? "Compte créé. Un email avec les identifiants a été envoyé à {$user->email}."
-            : "Compte créé, mais l'email n'a pas pu être envoyé. Mot de passe provisoire : {$motDePasse}";
+        $msg = $res['email_envoye']
+            ? "Compte créé pour {$membre->nom_complet}. Un email d'activation a été envoyé à {$membre->email}."
+            : "Compte créé, mais l'email d'activation n'a pas pu être envoyé (vérifier la configuration SMTP).";
 
         return redirect()->route('admin.users.index')->with('ok', $msg);
     }
@@ -76,42 +72,52 @@ class UserController extends Controller
     public function edit(User $user)
     {
         return view('admin.users.edit', [
-            'user'    => $user->load('roles'),
-            'roles'   => self::ROLES,
-            'membres' => Membre::orderBy('nom')->get(),
+            'user'  => $user->load('roles', 'membre'),
+            'roles' => self::ROLES,
         ]);
     }
 
+    /**
+     * L'administrateur peut modifier le rôle et — contrairement à l'utilisateur — l'email.
+     */
     public function update(Request $request, User $user)
     {
         $data = $request->validate([
-            'name'      => ['required', 'string', 'max:255'],
-            'email'     => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'role'      => ['required', Rule::in(array_keys(self::ROLES))],
-            'membre_id' => ['nullable', 'exists:membres,id'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'role'  => ['required', Rule::in(array_keys(self::ROLES))],
         ]);
 
-        $user->update([
-            'name'      => $data['name'],
-            'email'     => $data['email'],
-            'membre_id' => $data['membre_id'] ?? null,
-        ]);
+        $user->update(['email' => $data['email']]);
         $user->syncRoles([$data['role']]);
+        $this->comptes->desactiverAnciensDuRole($data['role'], $user->id);
 
         return redirect()->route('admin.users.index')->with('ok', 'Compte mis à jour.');
     }
 
-    /** Réinitialise le mot de passe et renvoie un email. */
+    /** Renvoie un email d'activation (compte non encore activé). */
+    public function renvoyerActivation(User $user)
+    {
+        $envoye = $this->comptes->envoyerActivation($user);
+        return back()->with('ok', $envoye
+            ? "Lien d'activation renvoyé à {$user->email}."
+            : "Échec de l'envoi (vérifier la configuration SMTP).");
+    }
+
+    /** Envoie un lien de réinitialisation de mot de passe. */
     public function resetPassword(User $user)
     {
-        $motDePasse = Str::password(10);
-        $user->update(['password' => Hash::make($motDePasse)]);
-        $role = $user->getRoleNames()->first();
-        $envoye = $this->envoyerEmail($user, $motDePasse, self::ROLES[$role] ?? 'Membre');
+        \Illuminate\Support\Facades\Password::sendResetLink(['email' => $user->email]);
+        return back()->with('ok', "Lien de réinitialisation envoyé à {$user->email}.");
+    }
 
-        return back()->with('ok', $envoye
-            ? "Nouveau mot de passe envoyé à {$user->email}."
-            : "Mot de passe réinitialisé : {$motDePasse} (email non envoyé).");
+    /** Active / désactive un compte (la désactivation bloque la connexion). */
+    public function toggleActif(User $user)
+    {
+        if ($user->id === auth()->id()) {
+            return back()->with('ok', "Vous ne pouvez pas désactiver votre propre compte.");
+        }
+        $user->update(['actif' => ! $user->actif]);
+        return back()->with('ok', $user->actif ? 'Compte activé.' : 'Compte désactivé.');
     }
 
     public function destroy(User $user)
@@ -121,17 +127,5 @@ class UserController extends Controller
         }
         $user->delete();
         return back()->with('ok', 'Compte supprimé.');
-    }
-
-    /** Envoi de l'email ; renvoie false si l'envoi échoue (SMTP non configuré, etc.). */
-    private function envoyerEmail(User $user, string $motDePasse, string $roleLibelle): bool
-    {
-        try {
-            Mail::to($user->email)->send(new NouveauCompte($user, $motDePasse, $roleLibelle));
-            return true;
-        } catch (\Throwable $e) {
-            report($e);
-            return false;
-        }
     }
 }

@@ -3,8 +3,8 @@
 
 @section('content')
 @php
-    $statutBadge = ['planifiee'=>'bg-blue-100 text-blue-700','realisee'=>'bg-green-100 text-green-700','annulee'=>'bg-red-100 text-red-700'];
-    $statutLabel = ['planifiee'=>'Planifiée','realisee'=>'Réalisée','annulee'=>'Annulée'];
+    $statutBadge = ['planifiee'=>'bg-blue-100 text-blue-700','en_cours'=>'bg-amber-100 text-amber-700','terminee'=>'bg-cyan-100 text-cyan-700','rapport_soumis'=>'bg-green-100 text-green-700','annulee'=>'bg-red-100 text-red-700'];
+    $statutLabel = \App\Models\Formation::STATUTS;
 @endphp
 
 <div class="flex items-center justify-between mb-5">

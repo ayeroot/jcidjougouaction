@@ -48,7 +48,8 @@ class MembreController extends Controller
 
     public function store(Request $request)
     {
-        $data = $this->valide($request);
+        // Photo OBLIGATOIRE à la création (contrôle backend).
+        $data = $this->valide($request, photoObligatoire: true);
         $data = $this->gererPhoto($request, $data);
         $membre = Membre::create($data);
         return redirect()->route('membres.show', $membre)
@@ -89,7 +90,7 @@ class MembreController extends Controller
         return redirect()->route('membres.index')->with('ok', 'Membre supprimé.');
     }
 
-    private function valide(Request $request): array
+    private function valide(Request $request, bool $photoObligatoire = false): array
     {
         return $request->validate([
             'nom'            => ['required', 'string', 'max:255'],
@@ -100,11 +101,13 @@ class MembreController extends Controller
             'telephone'      => ['nullable', 'string', 'max:50'],
             'fonction'       => ['nullable', \Illuminate\Validation\Rule::in(\App\Models\Membre::FONCTIONS)],
             'promotion'      => ['nullable', 'string', 'max:255'],
-            'photo'          => ['nullable', 'image', 'max:2048'],
+            'photo'          => [$photoObligatoire ? 'required' : 'nullable', 'image', 'max:2048'],
             'ville'          => ['nullable', 'string', 'max:255'],
             'adresse'        => ['nullable', 'string', 'max:255'],
             'statut'         => ['required', 'in:actif,honoraire,past_president,membre_honneur'],
             'date_adhesion'  => ['nullable', 'date'],
+        ], [
+            'photo.required' => 'La photo du membre est obligatoire.',
         ]);
     }
 }

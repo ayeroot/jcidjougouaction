@@ -1,5 +1,6 @@
 <?php
 namespace App\Models;
+use App\Support\Auditable;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -8,15 +9,27 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
+    use Auditable;
     use Notifiable, HasRoles;
 
-    protected $fillable = ['name', 'email', 'password', 'membre_id'];
-    protected $hidden = ['password', 'remember_token'];
+    protected $fillable = ['name', 'email', 'password', 'membre_id', 'actif', 'activation_token', 'activation_expire_at'];
+    protected $hidden = ['password', 'remember_token', 'activation_token'];
 
     protected function casts(): array
     {
-        return ['email_verified_at' => 'datetime', 'password' => 'hashed'];
+        return [
+            'email_verified_at'    => 'datetime',
+            'password'             => 'hashed',
+            'actif'                => 'boolean',
+            'activation_expire_at' => 'datetime',
+        ];
     }
 
     public function membre(): BelongsTo { return $this->belongsTo(Membre::class); }
+
+    /** Un compte est activé quand il a un mot de passe défini et qu'il est actif. */
+    public function estActive(): bool
+    {
+        return (bool) $this->actif && ! empty($this->password);
+    }
 }
