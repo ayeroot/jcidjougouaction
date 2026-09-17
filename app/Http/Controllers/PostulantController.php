@@ -40,12 +40,16 @@ class PostulantController extends Controller
         return back()->with('ok', 'Statut mis à jour.');
     }
 
-    /** Conversion d'un postulant admis en membre. */
-    public function convertir(Postulant $postulant)
+    /** Intégration : le postulant devient membre après examen réussi, avec une promotion. */
+    public function convertir(Request $request, Postulant $postulant)
     {
         if ($postulant->membre_id) {
             return back()->with('ok', 'Ce postulant est déjà membre.');
         }
+
+        $data = $request->validate([
+            'promotion' => ['required', 'string', 'max:255'],
+        ]);
 
         $membre = Membre::create([
             'nom'            => $postulant->nom,
@@ -55,6 +59,8 @@ class PostulantController extends Controller
             'email'          => $postulant->email,
             'telephone'      => $postulant->telephone,
             'ville'          => $postulant->ville,
+            'fonction'       => 'Membre',
+            'promotion'      => $data['promotion'],
             'statut'         => 'actif',
             'date_adhesion'  => now(),
         ]);
@@ -62,6 +68,6 @@ class PostulantController extends Controller
         $postulant->update(['statut' => 'admis', 'membre_id' => $membre->id]);
 
         return redirect()->route('membres.show', $membre)
-                         ->with('ok', 'Postulant admis et converti en membre.');
+                         ->with('ok', 'Postulant intégré comme membre (promotion ' . $data['promotion'] . ').');
     }
 }

@@ -23,9 +23,12 @@ class Membre extends Model
         'Membre',
     ];
 
+    /** Montant annuel attendu de cotisation (pour le paiement échelonné). */
+    public const COTISATION_ATTENDUE = 15000;
+
     protected $fillable = [
         'nom', 'prenom', 'date_naissance', 'sexe', 'email', 'telephone',
-        'photo', 'fonction', 'ville', 'adresse', 'statut', 'date_adhesion',
+        'photo', 'fonction', 'promotion', 'ville', 'adresse', 'statut', 'date_adhesion',
     ];
     protected $casts = ['date_naissance' => 'date', 'date_adhesion' => 'date'];
 
@@ -44,14 +47,32 @@ class Membre extends Model
     }
 
     /** Statut « honorable » calculé : à jour de cotisation pour le mandat actif. */
-    public function estHonorable(?Mandat $mandat = null): bool
+    /** Total cotisé pour un mandat (somme des tranches). */
+    public function montantCotise(?Mandat $mandat = null): float
     {
         $mandat = $mandat ?? Mandat::actif();
-        if (! $mandat) return false;
-        return $this->cotisations()->where('mandat_id', $mandat->id)->exists();
+        if (! $mandat) return 0;
+        return (float) $this->cotisations()->where('mandat_id', $mandat->id)->sum('montant');
+    }
+
+    /** Honorable = cotisation entièrement réglée (cumul >= montant attendu). */
+    public function estHonorable(?Mandat $mandat = null): bool
+    {
+        return $this->montantCotise($mandat) >= self::COTISATION_ATTENDUE;
     }
 
     public function scopeMoinsDe40($q) {
         return $q->whereDate('date_naissance', '>', now()->subYears(40));
+    }
+
+    /** Membres dont l'anniversaire tombe dans un mois donné (1-12). */
+    public function scopeAnniversaireMois($q, int $mois) {
+        return $q->whereNotNull('date_naissance')->whereMonth('date_naissance', $mois);
+    }
+
+    /** Âge que le membre atteindra à son anniversaire de l'année en cours. */
+    public function getAgeAnniversaireAttribute(): ?int
+    {
+        return $this->date_naissance ? now()->year - $this->date_naissance->year : null;
     }
 }

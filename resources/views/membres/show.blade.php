@@ -27,9 +27,13 @@
     <div class="md:col-span-2 space-y-5">
         <div class="bg-white border rounded-xl p-6">
             <div class="flex items-center gap-4">
-                <div class="w-16 h-16 rounded-full bg-jci-100 text-jci-700 grid place-items-center text-2xl font-bold">
-                    {{ mb_substr($membre->prenom,0,1) }}{{ mb_substr($membre->nom,0,1) }}
-                </div>
+                @if ($membre->photo)
+                    <img src="{{ \Illuminate\Support\Facades\Storage::url($membre->photo) }}" alt="{{ $membre->nom_complet }}" class="w-16 h-16 rounded-full object-cover border">
+                @else
+                    <div class="w-16 h-16 rounded-full bg-jci-100 text-jci-700 grid place-items-center text-2xl font-bold">
+                        {{ mb_substr($membre->prenom,0,1) }}{{ mb_substr($membre->nom,0,1) }}
+                    </div>
+                @endif
                 <div>
                     <h1 class="text-2xl font-bold text-jci-900">{{ $membre->nom_complet }}</h1>
                     <p class="text-slate-500">{{ $membre->fonction ?: 'Membre' }}</p>
@@ -41,6 +45,7 @@
                 <div><div class="text-slate-400">Ville</div><div class="font-medium">{{ $membre->ville ?: '—' }}</div></div>
                 <div><div class="text-slate-400">Âge</div><div class="font-medium">{{ $membre->age ? $membre->age.' ans' : '—' }}</div></div>
                 <div><div class="text-slate-400">Adhésion</div><div class="font-medium">{{ $membre->date_adhesion?->format('d/m/Y') ?: '—' }}</div></div>
+                <div><div class="text-slate-400">Promotion</div><div class="font-medium">{{ $membre->promotion ?: '—' }}</div></div>
             </div>
         </div>
 

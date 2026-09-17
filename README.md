@@ -1,22 +1,15 @@
 # Plateforme JCI Djougou Action
 
 Application web de gestion pour l'Organisation Locale Membre **JCI Djougou Action** :
-site vitrine public + espace de gestion privé (tableau de bord) avec gestion des rôles.
+site vitrine public + espace de gestion privé avec gestion des rôles. Thème **bleu aqua**.
 
-- **Backend :** Laravel 13 (PHP 8.3+)
-- **Interface :** Blade + Tailwind CSS
+- **Backend :** Laravel 13 (PHP 8.3+) · **Interface :** Blade + Tailwind CSS
 - **Base de données :** SQLite (développement) — MySQL en production
-- **Rôles & permissions :** spatie/laravel-permission
-- **Traçabilité :** journal d'audit maison (trait `App\Support\Auditable`)
+- **Rôles :** spatie/laravel-permission · **Traçabilité :** journal d'audit (trait `Auditable`)
 
 ---
 
-## 1. Prérequis
-
-- PHP **8.3+** avec `pdo_sqlite`, `mbstring`, `xml`, `curl`
-- [Composer](https://getcomposer.org)
-
-## 2. Installation (en local)
+## Installation (en local)
 
 ```bash
 composer install
@@ -24,70 +17,70 @@ cp .env.example .env
 php artisan key:generate
 touch database/database.sqlite
 php artisan migrate --seed
+php artisan storage:link      # indispensable pour afficher les photos/logos téléversés
 php artisan serve
 ```
 
-Ouvrez **http://127.0.0.1:8000** (vitrine `/`, inscription `/inscription`, connexion `/connexion`).
+Ouvrez **http://127.0.0.1:8000**.
 
-## 3. Comptes de démonstration
+## Comptes de démonstration
 
-Les comptes du CDL sont identifiés par la **fonction** (pas de nom de personne).
-Mot de passe pour tous : `password`
+Comptes du CDL identifiés par la **fonction**. Mot de passe : `password`
+*(à changer avant toute mise en production).*
 
-| Fonction | Identifiant (email) |
-|----------|---------------------|
-| Président (accès complet) | `president.local@jcidjougou.bj` |
-| VP Exécutive | `vpe.local@jcidjougou.bj` |
-| VP Relations Extérieures | `vpre.local@jcidjougou.bj` |
-| VP Formations (module Formations) | `vpf.local@jcidjougou.bj` |
-| VP Management (module Membres) | `vpm.local@jcidjougou.bj` |
-| VP Croissance (module Recrutement) | `vpcd.local@jcidjougou.bj` |
-| VP Projet & Thème | `vp-projet.local@jcidjougou.bj` |
-| Trésorier (module Finances) | `tresorier.local@jcidjougou.bj` |
-| Secrétaire Général | `secretaire.local@jcidjougou.bj` |
-| Membre simple (accès restreint) | `karim.orou@example.bj` |
+| Fonction | Identifiant |
+|----------|-------------|
+| **Administrateur** (crée les comptes, attribue les rôles) | `admin@jcidjougou.bj` |
+| Président (voit tout, **ne modifie pas** les finances) | `president.local@jcidjougou.bj` |
+| VP Exécutive (Efficacité, Historique) | `vpe.local@jcidjougou.bj` |
+| VP Relations Ext. (Partenaires) | `vpre.local@jcidjougou.bj` |
+| VP Formations | `vpf.local@jcidjougou.bj` |
+| VP Management (Membres) | `vpm.local@jcidjougou.bj` |
+| VP Croissance (Recrutement) | `vpcd.local@jcidjougou.bj` |
+| VP Projet | `vp-projet.local@jcidjougou.bj` |
+| Trésorier (Finances) | `tresorier.local@jcidjougou.bj` |
+| Secrétaire Général (Archives) | `secretaire.local@jcidjougou.bj` |
+| Membre simple | `karim.orou@example.bj` |
 
-> Astuce : le lien **Recrutement** n'apparaît que pour le VPCD, le VPF et le Président ;
-> **Formations** pour le VPF et le Président ; **Finances** pour le Trésorier et le Président.
+## Modules
 
-## 4. Modules disponibles
+- **Administration des comptes** (réservé à l'administrateur) : l'admin **crée les identifiants**
+  et **attribue les rôles** ; un mot de passe provisoire est généré et **envoyé par email** au nouvel
+  utilisateur avec le lien de connexion. Réinitialisation du mot de passe (avec renvoi d'email) et
+  suppression de compte. En développement, les emails sont écrits dans `storage/logs/laravel.log`
+  (`MAIL_MAILER=log`) ; en production, configurer un vrai SMTP dans le `.env`.
+- **Vitrine + inscription** des postulants.
+- **Membres** : liste, filtres (recherche, statut, carrière, moins de 40 ans),
+  fiche avec **photo** et **nom de promotion**, visibilité par rôle, fonction en liste déroulante,
+  statut *honorable* calculé (cotisation entièrement réglée).
+- **Anniversaires** : membres fêtés, par mois.
+- **Recrutement** : pipeline *nouveau → contacté → en formation → examen → intégré* ;
+  intégration en membre **avec nom de promotion** (après formations et examen réussi) ; relevé imprimable.
+- **Formations** : planification, formateur, liste de présence imprimable, pointage,
+  rapport (présents injectés), filtre « formations du mois ».
+- **Finances** : cotisations en **paiement échelonné** (tranches, reste à payer),
+  contributions, **dépenses par catégorie** (projet, prestation graphiste, secrétariat,
+  fonctionnement…) y compris **hors projet**, solde, budget par projet.
+  *Le Président consulte mais ne modifie pas ; seul le Trésorier enregistre les mouvements.*
+- **Projets**, **Partenaires**, **Archives** (par type + référence/lien).
+- **Plan d'action & Efficacité 100%** : standards suivis (% d'efficacité) + plan d'action mensuel.
+- **Mandats** : configuration par mandat (**logo, thème, couleur, photo de famille du CDL,
+  liste du CDL**) et **historique des mandats**.
+- **Historique des activités** : journal d'audit (qui a fait quoi, quand).
 
-- **Fondations :** Laravel + SQLite + Tailwind, rôles/permissions, journal d'audit, entité *Mandat*.
-- **Vitrine :** accueil, projets, partenaires, formulaire d'inscription des postulants.
-- **Authentification** et espace privé protégé par rôle.
-- **Membres :** liste (visible par tous), filtres, fiche avec **visibilité par rôle**,
-  fonction en **liste déroulante**, statut **honorable calculé**, CRUD réservé VPM/Président.
-- **Recrutement :** pipeline des postulants, changement de statut, **conversion en membre**,
-  relevé des formations, relevé individuel imprimable.
-- **Formations :** planification, affectation d'un formateur (interne/externe),
-  **liste de présence imprimable**, **pointage** des présents, **rapport** (présents injectés
-  automatiquement), filtre « formations du mois ».
-- **Finances :** cotisations, contributions, dépenses, **solde de caisse**, budget par projet,
-  suivi des membres honorables.
+## Sécurité
 
-### Prochains lots
+- Rôles et permissions par middleware ; le Président ne modifie pas les finances.
+- Connexion protégée contre la force brute (`throttle:6,1`).
+- CSRF natif, validation stricte, uploads limités aux images (2–4 Mo), mots de passe hachés.
+- **Avant production** : `APP_DEBUG=false`, HTTPS, changer les mots de passe de démonstration,
+  basculer sur MySQL. Voir la checklist dans `DEPLOIEMENT_VERCEL.md`.
 
-Projets (suivi détaillé), Partenaires, Archives, Plan d'action & Efficacité 100 %,
-export PDF natif (dompdf), sauvegardes automatiques.
+## Déploiement
 
-## 5. Passage en production
-
-1. **Tailwind :** CDN en développement ; en production, `npm install` + `npm run build`
-   puis remplacer le `<script src="cdn.tailwindcss.com">` des gabarits par `@vite(['resources/css/app.css'])`.
-2. **Base de données :** basculer SQLite → **MySQL** dans `.env` (DB_CONNECTION=mysql, DB_DATABASE, …),
-   puis `php artisan migrate --seed`.
-
-## 6. Organisation du code
-
-```
-app/Http/Controllers/   Public/, Auth/, Dashboard, Membre, Postulant, Formation, Finance
-app/Models/             Mandat, Membre, Postulant, Formation, Presence, Cotisation, ... (14 modeles)
-app/Support/Auditable.php   Trait de journalisation (audit)
-database/migrations/    Schema complet des 12 modules
-database/seeders/       Donnees de demonstration
-resources/views/        layouts/, public/, auth/, membres/, postulants/, formations/, finances/
-routes/web.php          Public, auth, espace prive (protege par role)
-```
+- **Vercel + MySQL** : voir **`DEPLOIEMENT_VERCEL.md`** (avec ses contraintes serverless).
+- **Production classique** : passer `DB_CONNECTION=mysql` dans `.env`, compiler Tailwind
+  (`npm install && npm run build`, puis remplacer le CDN par `@vite`), et lancer `php artisan migrate --seed`.
 
 ---
 

@@ -29,8 +29,12 @@
             <option value="{{ $val }}" @selected(request('statut')===$val)>{{ $lbl }}</option>
         @endforeach
     </select>
-    <input name="carriere" value="{{ request('carriere') }}" placeholder="Carrière (MC, protocole…)"
-           class="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-jci-600 outline-none">
+    <select name="carriere" class="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-jci-600 outline-none">
+        <option value="">Toutes les carrières</option>
+        @foreach (['Bureau','Formation','MC','Protocole','Développement','Communication'] as $c)
+            <option value="{{ $c }}" @selected(request('carriere')===$c)>{{ $c }}</option>
+        @endforeach
+    </select>
     <label class="flex items-center gap-2 px-2">
         <input type="checkbox" name="moins40" value="1" @checked(request('moins40')) class="rounded border-slate-300">
         Moins de 40 ans

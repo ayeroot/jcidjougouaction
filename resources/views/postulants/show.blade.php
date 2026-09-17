@@ -3,7 +3,7 @@
 
 @section('content')
 @php
-    $labels = ['nouveau'=>'Nouveau','contacte'=>'Contacté','en_formation'=>'En formation','admis'=>'Admis','rejete'=>'Rejeté'];
+    $labels = ['nouveau'=>'Nouveau','contacte'=>'Contacté','en_formation'=>'En formation','examen'=>'Examen','admis'=>'Admis','rejete'=>'Rejeté'];
     $peutGerer = $u->hasAnyRole(['vpcd','president']);
 @endphp
 
@@ -71,10 +71,14 @@
                 </form>
 
                 @if (!$postulant->membre_id)
-                    <form method="POST" action="{{ route('postulants.convertir', $postulant) }}" class="mt-3"
-                          onsubmit="return confirm('Admettre ce postulant et le convertir en membre ?')">
+                    <form method="POST" action="{{ route('postulants.convertir', $postulant) }}" class="mt-3 space-y-2"
+                          onsubmit="return confirm('Intégrer ce postulant comme membre ?')">
                         @csrf
-                        <button class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 text-sm">✓ Admettre → créer le membre</button>
+                        <label class="block text-xs font-medium text-slate-600">Nom de la promotion</label>
+                        <input name="promotion" required placeholder="Ex : Promotion Excellence 2026"
+                               class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-jci-600 outline-none">
+                        <p class="text-[11px] text-slate-400">L'intégration se fait après les formations et l'examen réussi.</p>
+                        <button class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 text-sm">✓ Intégrer comme membre</button>
                     </form>
                 @else
                     <div class="mt-3 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">

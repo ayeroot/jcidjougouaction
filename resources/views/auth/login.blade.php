@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { theme: { extend: { colors: { jci: {
-            100:'#EAF1F8', 600:'#1B6CA8', 700:'#12558f', 900:'#0B3D6B' } } } } }
+            100:'#cffafe', 600:'#0891b2', 700:'#0e7490', 900:'#155e75' } } } } }
     </script>
 </head>
 <body class="bg-slate-100 min-h-screen grid place-items-center px-4">

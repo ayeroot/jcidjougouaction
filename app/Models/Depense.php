@@ -5,7 +5,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Depense extends Model
 {
-    protected $fillable = ['libelle', 'montant', 'date_depense', 'projet_id', 'mandat_id'];
+    public const CATEGORIES = [
+        'projet'        => 'Projet',
+        'prestation'    => 'Prestation (graphiste, …)',
+        'secretariat'   => 'Secrétariat',
+        'fonctionnement'=> 'Fonctionnement',
+        'autre'         => 'Autre',
+    ];
+
+    protected $fillable = ['libelle', 'categorie', 'montant', 'date_depense', 'projet_id', 'mandat_id'];
     protected $casts = ['montant' => 'decimal:2', 'date_depense' => 'date'];
     public function projet(): BelongsTo { return $this->belongsTo(Projet::class); }
 }

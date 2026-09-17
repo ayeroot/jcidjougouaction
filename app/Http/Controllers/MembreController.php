@@ -48,7 +48,9 @@ class MembreController extends Controller
 
     public function store(Request $request)
     {
-        $membre = Membre::create($this->valide($request));
+        $data = $this->valide($request);
+        $data = $this->gererPhoto($request, $data);
+        $membre = Membre::create($data);
         return redirect()->route('membres.show', $membre)
                          ->with('ok', 'Membre créé avec succès.');
     }
@@ -60,9 +62,25 @@ class MembreController extends Controller
 
     public function update(Request $request, Membre $membre)
     {
-        $membre->update($this->valide($request));
+        $data = $this->valide($request);
+        $data = $this->gererPhoto($request, $data, $membre);
+        $membre->update($data);
         return redirect()->route('membres.show', $membre)
                          ->with('ok', 'Fiche mise à jour.');
+    }
+
+    /** Stocke la photo téléversée (disque public) et remplace l'ancienne. */
+    private function gererPhoto(Request $request, array $data, ?Membre $membre = null): array
+    {
+        if ($request->hasFile('photo')) {
+            if ($membre && $membre->photo) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($membre->photo);
+            }
+            $data['photo'] = $request->file('photo')->store('membres', 'public');
+        } else {
+            unset($data['photo']); // ne pas écraser avec null
+        }
+        return $data;
     }
 
     public function destroy(Membre $membre)
@@ -81,6 +99,8 @@ class MembreController extends Controller
             'email'          => ['nullable', 'email', 'max:255'],
             'telephone'      => ['nullable', 'string', 'max:50'],
             'fonction'       => ['nullable', \Illuminate\Validation\Rule::in(\App\Models\Membre::FONCTIONS)],
+            'promotion'      => ['nullable', 'string', 'max:255'],
+            'photo'          => ['nullable', 'image', 'max:2048'],
             'ville'          => ['nullable', 'string', 'max:255'],
             'adresse'        => ['nullable', 'string', 'max:255'],
             'statut'         => ['required', 'in:actif,honoraire,past_president,membre_honneur'],

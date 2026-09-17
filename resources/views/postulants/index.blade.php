@@ -3,8 +3,8 @@
 
 @section('content')
 @php
-    $labels = ['nouveau'=>'Nouveau','contacte'=>'Contacté','en_formation'=>'En formation','admis'=>'Admis','rejete'=>'Rejeté'];
-    $colors = ['nouveau'=>'bg-blue-100 text-blue-700','contacte'=>'bg-amber-100 text-amber-700','en_formation'=>'bg-purple-100 text-purple-700','admis'=>'bg-green-100 text-green-700','rejete'=>'bg-red-100 text-red-700'];
+    $labels = ['nouveau'=>'Nouveau','contacte'=>'Contacté','en_formation'=>'En formation','examen'=>'Examen','admis'=>'Admis','rejete'=>'Rejeté'];
+    $colors = ['nouveau'=>'bg-blue-100 text-blue-700','contacte'=>'bg-amber-100 text-amber-700','en_formation'=>'bg-purple-100 text-purple-700','examen'=>'bg-indigo-100 text-indigo-700','admis'=>'bg-green-100 text-green-700','rejete'=>'bg-red-100 text-red-700'];
 @endphp
 
 <div class="mb-5">
