@@ -26,12 +26,12 @@
     </div>
     <div>
         <label class="block text-sm font-medium mb-1">Logo du mandat</label>
-        @if ($mandat->logo)<img src="{{ \Illuminate\Support\Facades\Storage::url($mandat->logo) }}" class="h-16 mb-2 rounded border">@endif
+        @if ($mandat->logo)<img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($mandat->logo) }}" class="h-16 mb-2 rounded border">@endif
         <input type="file" name="logo" accept="image/*" class="w-full text-sm border rounded-lg px-3 py-2">
     </div>
     <div>
         <label class="block text-sm font-medium mb-1">Photo de famille du CDL</label>
-        @if ($mandat->photo_famille)<img src="{{ \Illuminate\Support\Facades\Storage::url($mandat->photo_famille) }}" class="h-16 mb-2 rounded border">@endif
+        @if ($mandat->photo_famille)<img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($mandat->photo_famille) }}" class="h-16 mb-2 rounded border">@endif
         <input type="file" name="photo_famille" accept="image/*" class="w-full text-sm border rounded-lg px-3 py-2">
     </div>
 </div>

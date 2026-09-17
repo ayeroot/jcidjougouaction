@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\InscriptionController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\ActivationController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MembreController;
 use App\Http\Controllers\PostulantController;
@@ -15,7 +17,9 @@ use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\EfficaciteController;
 use App\Http\Controllers\AnniversaireController;
 use App\Http\Controllers\MandatController;
+use App\Http\Controllers\CdlController;
 use App\Http\Controllers\HistoriqueController;
+use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\Admin\UserController;
 
 /* ---------------- Zone publique (vitrine) ---------------- */
@@ -29,15 +33,33 @@ Route::get('/connexion', [LoginController::class, 'show'])->middleware('guest')-
 Route::post('/connexion', [LoginController::class, 'login'])->middleware(['guest', 'throttle:6,1']);
 Route::post('/deconnexion', [LoginController::class, 'logout'])->name('logout');
 
+/* ---------------- Activation de compte (lien email) ---------------- */
+Route::middleware('guest')->group(function () {
+    Route::get('/activation/{token}', [ActivationController::class, 'show'])->name('activation.show');
+    Route::post('/activation', [ActivationController::class, 'store'])->name('activation.store');
+
+    /* Réinitialisation du mot de passe (token sécurisé, à durée limitée) */
+    Route::get('/mot-de-passe/oubli', [PasswordResetController::class, 'demande'])->name('password.request');
+    Route::post('/mot-de-passe/oubli', [PasswordResetController::class, 'envoyer'])
+        ->middleware('throttle:6,1')->name('password.email');
+    Route::get('/mot-de-passe/reinitialiser/{token}', [PasswordResetController::class, 'formulaire'])->name('password.reset');
+    Route::post('/mot-de-passe/reinitialiser', [PasswordResetController::class, 'reinitialiser'])->name('password.update');
+});
+
 /* ---------------- Espace privé ---------------- */
 Route::middleware('auth')->prefix('espace')->group(function () {
 
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
+    /* Profil personnel : tout utilisateur connecté (email NON modifiable ici) */
+    Route::get('/profil', [ProfilController::class, 'edit'])->name('profil.edit');
+    Route::put('/profil', [ProfilController::class, 'update'])->name('profil.update');
+    Route::put('/profil/mot-de-passe', [ProfilController::class, 'motDePasse'])->name('profil.password');
+
     /* Anniversaires : ouvert à tous les membres connectés */
     Route::get('/anniversaires', [AnniversaireController::class, 'index'])->name('anniversaires.index');
 
-    /* Membres */
+    /* Membres : consultation ouverte à tous (dont admin) */
     Route::get('/membres', [MembreController::class, 'index'])->name('membres.index');
     Route::get('/membres/{membre}', [MembreController::class, 'show'])->name('membres.show');
     Route::middleware('role:vpm|president')->group(function () {
@@ -48,8 +70,8 @@ Route::middleware('auth')->prefix('espace')->group(function () {
         Route::delete('/membres/{membre}', [MembreController::class, 'destroy'])->name('membres.destroy');
     });
 
-    /* Recrutement */
-    Route::middleware('role:vpcd|vpf|president')->group(function () {
+    /* Recrutement : lecture VPCD/VPF/Président (+ admin) ; gestion VPCD/Président */
+    Route::middleware('role:vpcd|vpf|president|admin')->group(function () {
         Route::get('/postulants', [PostulantController::class, 'index'])->name('postulants.index');
         Route::get('/postulants/{postulant}', [PostulantController::class, 'show'])->name('postulants.show');
         Route::get('/postulants/{postulant}/releve', [PostulantController::class, 'releve'])->name('postulants.releve');
@@ -59,21 +81,23 @@ Route::middleware('auth')->prefix('espace')->group(function () {
         Route::post('/postulants/{postulant}/convertir', [PostulantController::class, 'convertir'])->name('postulants.convertir');
     });
 
-    /* Formations */
-    Route::middleware('role:vpf|president')->group(function () {
+    /* Formations : lecture VPF/Président (+ admin) ; gestion VPF/Président */
+    Route::middleware('role:vpf|president|admin')->group(function () {
         Route::get('/formations', [FormationController::class, 'index'])->name('formations.index');
-        Route::get('/formations/creer', [FormationController::class, 'create'])->name('formations.create');
-        Route::post('/formations', [FormationController::class, 'store'])->name('formations.store');
         Route::get('/formations/{formation}', [FormationController::class, 'show'])->name('formations.show');
+        Route::get('/formations/{formation}/liste-presence', [FormationController::class, 'listePresence'])->name('formations.presence');
+    });
+    Route::middleware('role:vpf|president')->group(function () {
+        Route::get('/formations-nouvelle/creer', [FormationController::class, 'create'])->name('formations.create');
+        Route::post('/formations', [FormationController::class, 'store'])->name('formations.store');
         Route::get('/formations/{formation}/modifier', [FormationController::class, 'edit'])->name('formations.edit');
         Route::put('/formations/{formation}', [FormationController::class, 'update'])->name('formations.update');
         Route::delete('/formations/{formation}', [FormationController::class, 'destroy'])->name('formations.destroy');
         Route::post('/formations/{formation}/pointage', [FormationController::class, 'pointage'])->name('formations.pointage');
         Route::post('/formations/{formation}/rapport', [FormationController::class, 'rapport'])->name('formations.rapport');
-        Route::get('/formations/{formation}/liste-presence', [FormationController::class, 'listePresence'])->name('formations.presence');
     });
 
-    /* Finances : consultation Trésorier + Président ; écritures réservées au Trésorier */
+    /* Finances : Trésorier + Président uniquement — PAS d'accès administrateur */
     Route::middleware('role:tresorier|president')->group(function () {
         Route::get('/finances', [FinanceController::class, 'index'])->name('finances.index');
         Route::get('/finances/cotisations', [FinanceController::class, 'cotisations'])->name('finances.cotisations');
@@ -86,7 +110,7 @@ Route::middleware('auth')->prefix('espace')->group(function () {
         Route::post('/finances/depenses', [FinanceController::class, 'storeDepense'])->name('finances.depenses.store');
     });
 
-    /* Projets : consultation ouverte, gestion VP Projet / Président */
+    /* Projets : consultation ouverte (dont admin) ; gestion VP Projet / Président */
     Route::get('/projets', [ProjetController::class, 'index'])->name('projets.index');
     Route::get('/projets/{projet}', [ProjetController::class, 'show'])->name('projets.show');
     Route::middleware('role:vp_projet|president')->group(function () {
@@ -97,25 +121,31 @@ Route::middleware('auth')->prefix('espace')->group(function () {
         Route::delete('/projets/{projet}', [ProjetController::class, 'destroy'])->name('projets.destroy');
     });
 
-    /* Partenaires : VPRE / Président */
-    Route::middleware('role:vpre|president')->group(function () {
+    /* Partenaires : lecture VPRE/Président (+ admin) ; gestion VPRE/Président */
+    Route::middleware('role:vpre|president|admin')->group(function () {
         Route::get('/partenaires', [PartenaireController::class, 'index'])->name('partenaires.index');
+    });
+    Route::middleware('role:vpre|president')->group(function () {
         Route::post('/partenaires', [PartenaireController::class, 'store'])->name('partenaires.store');
         Route::get('/partenaires/{partenaire}/modifier', [PartenaireController::class, 'edit'])->name('partenaires.edit');
         Route::put('/partenaires/{partenaire}', [PartenaireController::class, 'update'])->name('partenaires.update');
         Route::delete('/partenaires/{partenaire}', [PartenaireController::class, 'destroy'])->name('partenaires.destroy');
     });
 
-    /* Archives : Secrétaire Général / Président */
-    Route::middleware('role:secretaire|president')->group(function () {
+    /* Archives : lecture Secrétaire/Président (+ admin) ; gestion Secrétaire/Président */
+    Route::middleware('role:secretaire|president|admin')->group(function () {
         Route::get('/archives', [ArchiveController::class, 'index'])->name('archives.index');
+    });
+    Route::middleware('role:secretaire|president')->group(function () {
         Route::post('/archives', [ArchiveController::class, 'store'])->name('archives.store');
         Route::delete('/archives/{archive}', [ArchiveController::class, 'destroy'])->name('archives.destroy');
     });
 
-    /* Plan d'action & Efficacité 100% : VPE / Président */
-    Route::middleware('role:vpe|president')->group(function () {
+    /* 100% efficacité : lecture VPE/Président (+ admin) ; gestion VPE/Président */
+    Route::middleware('role:vpe|president|admin')->group(function () {
         Route::get('/efficacite', [EfficaciteController::class, 'index'])->name('efficacite.index');
+    });
+    Route::middleware('role:vpe|president')->group(function () {
         Route::post('/efficacite/standards', [EfficaciteController::class, 'storeStandard'])->name('efficacite.standards.store');
         Route::patch('/efficacite/standards/{standard}', [EfficaciteController::class, 'toggleStandard'])->name('efficacite.standards.toggle');
         Route::delete('/efficacite/standards/{standard}', [EfficaciteController::class, 'destroyStandard'])->name('efficacite.standards.destroy');
@@ -124,31 +154,37 @@ Route::middleware('auth')->prefix('espace')->group(function () {
         Route::delete('/efficacite/actions/{action}', [EfficaciteController::class, 'destroyAction'])->name('efficacite.actions.destroy');
     });
 
-    /* Mandats : configuration & historique — Président */
-    Route::middleware('role:president')->group(function () {
+    /* Mandats : lecture Président (+ admin) ; configuration Président uniquement */
+    Route::middleware('role:president|admin')->group(function () {
         Route::get('/mandats', [MandatController::class, 'index'])->name('mandats.index');
-        Route::get('/mandats/creer', [MandatController::class, 'create'])->name('mandats.create');
-        Route::post('/mandats', [MandatController::class, 'store'])->name('mandats.store');
         Route::get('/mandats/{mandat}', [MandatController::class, 'show'])->name('mandats.show');
+    });
+    Route::middleware('role:president')->group(function () {
+        Route::get('/mandats-nouveau/creer', [MandatController::class, 'create'])->name('mandats.create');
+        Route::post('/mandats', [MandatController::class, 'store'])->name('mandats.store');
         Route::get('/mandats/{mandat}/modifier', [MandatController::class, 'edit'])->name('mandats.edit');
         Route::put('/mandats/{mandat}', [MandatController::class, 'update'])->name('mandats.update');
         Route::patch('/mandats/{mandat}/actif', [MandatController::class, 'setActif'])->name('mandats.actif');
+        /* Configuration du CDL (affectation des postes) */
+        Route::post('/mandats/{mandat}/cdl', [CdlController::class, 'affecter'])->name('cdl.affecter');
+        Route::delete('/mandats/{mandat}/cdl/{affectation}', [CdlController::class, 'retirer'])->name('cdl.retirer');
     });
 
-    /* Historique des activités (journal d'audit) : Président / VPE */
-    Route::middleware('role:president|vpe')->group(function () {
+    /* Historique des activités (audit) : Président / VPE / Admin (lecture) */
+    Route::middleware('role:president|vpe|admin')->group(function () {
         Route::get('/historique', [HistoriqueController::class, 'index'])->name('historique.index');
     });
 
-    /* Administration des comptes : réservée à l'administrateur.
-       L'admin crée les identifiants, attribue les rôles ; chaque compte reçoit un email. */
+    /* Administration des comptes : réservée à l'administrateur */
     Route::middleware('role:admin')->group(function () {
         Route::get('/utilisateurs', [UserController::class, 'index'])->name('admin.users.index');
         Route::get('/utilisateurs/creer', [UserController::class, 'create'])->name('admin.users.create');
         Route::post('/utilisateurs', [UserController::class, 'store'])->name('admin.users.store');
         Route::get('/utilisateurs/{user}/modifier', [UserController::class, 'edit'])->name('admin.users.edit');
         Route::put('/utilisateurs/{user}', [UserController::class, 'update'])->name('admin.users.update');
+        Route::post('/utilisateurs/{user}/activation', [UserController::class, 'renvoyerActivation'])->name('admin.users.activation');
         Route::post('/utilisateurs/{user}/reinitialiser', [UserController::class, 'resetPassword'])->name('admin.users.reset');
+        Route::post('/utilisateurs/{user}/actif', [UserController::class, 'toggleActif'])->name('admin.users.toggle');
         Route::delete('/utilisateurs/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
     });
 });

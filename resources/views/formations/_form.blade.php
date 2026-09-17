@@ -18,7 +18,7 @@
     <div>
         <label class="block text-sm font-medium mb-1">Statut *</label>
         <select name="statut" required class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-jci-600 outline-none">
-            @foreach (['planifiee'=>'Planifiée','realisee'=>'Réalisée','annulee'=>'Annulée'] as $v=>$l)
+            @foreach (\App\Models\Formation::STATUTS as $v=>$l)
                 <option value="{{ $v }}" @selected(old('statut',$formation->statut ?? 'planifiee')===$v)>{{ $l }}</option>
             @endforeach
         </select>

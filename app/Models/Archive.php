@@ -1,10 +1,12 @@
 <?php
 namespace App\Models;
+use App\Support\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Archive extends Model
 {
+    use Auditable;
     public const TYPES = ['rapport', 'photo', 'document', 'autre'];
     protected $fillable = ['titre', 'type', 'description', 'reference', 'date_document', 'mandat_id'];
     protected $casts = ['date_document' => 'date'];

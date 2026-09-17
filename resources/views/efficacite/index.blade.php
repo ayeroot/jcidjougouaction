@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Efficacité 100%')
+@section('title', '100% efficacité')
 
 @section('content')
 @php
@@ -7,7 +7,7 @@
     $statutBadge = ['a_faire'=>'bg-slate-100 text-slate-600','en_cours'=>'bg-amber-100 text-amber-700','fait'=>'bg-green-100 text-green-700'];
 @endphp
 
-<h1 class="text-2xl font-bold text-jci-900 mb-1">Plan d'action & Efficacité 100%</h1>
+<h1 class="text-2xl font-bold text-jci-900 mb-1">Plan d'action & 100% efficacité</h1>
 <p class="text-slate-500 text-sm mb-5">Suivi des standards d'efficacité et du plan d'action du mandat.</p>
 
 {{-- Progression --}}

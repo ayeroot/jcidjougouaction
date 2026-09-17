@@ -1,0 +1,23 @@
+@extends('layouts.auth')
+@section('title', 'Activer mon compte')
+@section('content')
+<h1 class="text-xl font-bold text-jci-900">Activer mon compte</h1>
+<p class="text-sm text-slate-500 mt-1">Bonjour {{ $user->name }}, définissez votre mot de passe pour activer votre compte.</p>
+<form method="POST" action="{{ route('activation.store') }}" class="mt-6 space-y-4">
+    @csrf
+    <input type="hidden" name="token" value="{{ $token }}">
+    <div>
+        <label class="block text-sm font-medium mb-1">Email</label>
+        <input type="email" value="{{ $user->email }}" disabled class="w-full border rounded-lg px-3 py-2 bg-slate-50 text-slate-500">
+    </div>
+    <div>
+        <label class="block text-sm font-medium mb-1">Nouveau mot de passe</label>
+        <input type="password" name="password" required minlength="8" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-jci-600 outline-none">
+    </div>
+    <div>
+        <label class="block text-sm font-medium mb-1">Confirmer le mot de passe</label>
+        <input type="password" name="password_confirmation" required minlength="8" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-jci-600 outline-none">
+    </div>
+    <button class="w-full bg-jci-900 text-white font-semibold py-2.5 rounded-lg hover:bg-jci-700">Activer mon compte</button>
+</form>
+@endsection

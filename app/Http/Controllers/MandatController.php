@@ -16,9 +16,10 @@ class MandatController extends Controller
 
     public function show(Mandat $mandat)
     {
-        // Membres du CDL = membres portant une fonction du bureau (hors « Membre »).
-        $cdl = Membre::where('fonction', '!=', 'Membre')->whereNotNull('fonction')->orderBy('nom')->get();
-        return view('mandats.show', compact('mandat', 'cdl'));
+        // Affectations du CDL pour ce mandat, indexées par poste.
+        $affectations = $mandat->affectations()->with('membre')->get()->keyBy('poste');
+        $membres = Membre::orderBy('nom')->get();
+        return view('mandats.show', compact('mandat', 'affectations', 'membres'));
     }
 
     public function create()

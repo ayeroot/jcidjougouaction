@@ -19,7 +19,16 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        // Refuser un compte désactivé (règle CDL : un seul compte actif par poste).
+        $user = \App\Models\User::where('email', $credentials['email'])->first();
+        if ($user && ! $user->actif) {
+            return back()->withErrors([
+                'email' => "Ce compte est désactivé. Contactez l'administrateur.",
+            ])->onlyInput('email');
+        }
+
+        // N'authentifier que les comptes actifs.
+        if (Auth::attempt($credentials + ['actif' => true], $request->boolean('remember'))) {
             $request->session()->regenerate();
             return redirect()->intended(route('dashboard'));
         }

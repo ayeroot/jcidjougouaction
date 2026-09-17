@@ -103,26 +103,8 @@ class DatabaseSeeder extends Seeder
                  'date_naissance' => rand(1998,2004).'-0'.rand(1,9).'-1'.rand(0,9)]);
         }
 
-        /* ---- Formations ---- */
-        $vpf = Membre::where('fonction', 'VP Formations')->first();
-        $fInt = Formateur::firstOrCreate(['nom' => 'Formateur interne (VPF)'],
-            ['type' => 'interne', 'membre_id' => $vpf?->id, 'contact' => 'formation@jcidjougou.bj']);
-        $fExt = Formateur::firstOrCreate(['nom' => 'Cabinet Élan Conseil'],
-            ['type' => 'externe', 'contact' => 'contact@elanconseil.bj']);
-        $f1 = Formation::firstOrCreate(['titre' => 'Introduction a la JCI'],
-            ['theme' => 'Decouverte', 'objectifs' => 'Comprendre la mission, la vision et les valeurs.',
-             'date_formation' => '2026-09-05 09:00', 'lieu' => 'Siege JCI Djougou', 'statut' => 'realisee',
-             'mandat_id' => $mandat->id, 'formateur_id' => $fInt->id]);
-        $f2 = Formation::firstOrCreate(['titre' => 'Techniques de prise de parole'],
-            ['theme' => 'Leadership', 'objectifs' => "S'exprimer en public avec aisance.",
-             'date_formation' => '2026-09-20 09:00', 'lieu' => 'Siege JCI Djougou', 'statut' => 'planifiee',
-             'mandat_id' => $mandat->id, 'formateur_id' => $fExt->id]);
-        foreach (Postulant::whereIn('statut', ['en_formation','admis'])->get() as $post) {
-            Presence::firstOrCreate(['formation_id' => $f1->id, 'postulant_id' => $post->id], ['present' => true]);
-            Presence::firstOrCreate(['formation_id' => $f2->id, 'postulant_id' => $post->id], ['present' => (bool) rand(0,1)]);
-        }
-        RapportFormation::firstOrCreate(['formation_id' => $f1->id],
-            ['contenu' => "Séance réussie autour des fondamentaux de la JCI ; bonne participation des postulants."]);
+        /* ---- Formations : AUCUNE formation préremplie (liste vide au départ) ----
+           Les formations sont saisies manuellement par la VPF depuis l'application. */
 
         /* ---- Projets (avec responsables) ---- */
         $vpProjet = Membre::where('fonction', 'VP Projet & Thème principal')->first();

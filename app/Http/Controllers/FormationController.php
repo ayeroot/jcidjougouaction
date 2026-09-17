@@ -13,7 +13,7 @@ class FormationController extends Controller
     /** Statuts de postulant éligibles à une formation (tous sauf rejetés). */
     private function postulantsEligibles()
     {
-        return Postulant::whereIn('statut', ['nouveau', 'contacte', 'en_formation', 'admis'])
+        return Postulant::whereIn('statut', ['nouveau', 'contacte', 'en_formation', 'examen', 'admis'])
                         ->orderBy('nom')->get();
     }
 
@@ -94,15 +94,26 @@ class FormationController extends Controller
         return back()->with('ok', 'Présences enregistrées.');
     }
 
-    /** Rédaction / mise à jour du rapport de formation. */
+    /** Rédaction / soumission du rapport de formation.
+     *  Règle (backend) : impossible de soumettre un rapport avant la fin de la formation. */
     public function rapport(Request $request, Formation $formation)
     {
+        if (! $formation->peutRecevoirRapport()) {
+            return back()->withErrors([
+                'contenu' => "Le rapport ne peut être soumis qu'après la fin de la formation (prévue le "
+                    . ($formation->date_formation?->format('d/m/Y H:i') ?? 'à définir') . ").",
+            ])->withInput();
+        }
+
         $data = $request->validate(['contenu' => ['required', 'string']]);
         RapportFormation::updateOrCreate(
             ['formation_id' => $formation->id],
             ['contenu' => $data['contenu'], 'redige_par' => $request->user()->id]
         );
-        return back()->with('ok', 'Rapport enregistré.');
+        // Le rapport soumis fait passer la formation au statut final.
+        $formation->update(['statut' => 'rapport_soumis']);
+
+        return back()->with('ok', 'Rapport soumis.');
     }
 
     /** Liste de présence imprimable. */
@@ -121,7 +132,7 @@ class FormationController extends Controller
             'objectifs'      => ['nullable', 'string'],
             'date_formation' => ['nullable', 'date'],
             'lieu'           => ['nullable', 'string', 'max:255'],
-            'statut'         => ['required', 'in:planifiee,realisee,annulee'],
+            'statut'         => ['required', \Illuminate\Validation\Rule::in(array_keys(\App\Models\Formation::STATUTS))],
         ]);
     }
 

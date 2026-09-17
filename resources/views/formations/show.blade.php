@@ -3,7 +3,7 @@
 
 @section('content')
 @php
-    $statutLabel = ['planifiee'=>'Planifiée','realisee'=>'Réalisée','annulee'=>'Annulée'];
+    $statutLabel = \App\Models\Formation::STATUTS;
 @endphp
 
 <div class="flex items-center justify-between mb-4">
@@ -78,14 +78,26 @@
             @endif
         </div>
 
-        <form method="POST" action="{{ route('formations.rapport', $formation) }}">
-            @csrf
-            <label class="block text-sm font-medium mb-1">Contenu du rapport</label>
-            <textarea name="contenu" rows="6" required class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-jci-600 outline-none">{{ old('contenu', $formation->rapport?->contenu) }}</textarea>
-            <button class="mt-3 bg-jci-900 text-white px-4 py-2 rounded-lg hover:bg-jci-700 text-sm">
-                {{ $formation->rapport ? 'Mettre à jour le rapport' : 'Enregistrer le rapport' }}
-            </button>
-        </form>
+        @if ($errors->has('contenu'))
+            <div class="mb-3 rounded-lg bg-red-50 border border-red-200 text-red-700 px-3 py-2 text-sm">{{ $errors->first('contenu') }}</div>
+        @endif
+
+        @if ($formation->peutRecevoirRapport())
+            <form method="POST" action="{{ route('formations.rapport', $formation) }}">
+                @csrf
+                <label class="block text-sm font-medium mb-1">Contenu du rapport</label>
+                <textarea name="contenu" rows="6" required class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-jci-600 outline-none">{{ old('contenu', $formation->rapport?->contenu) }}</textarea>
+                <button class="mt-3 bg-jci-900 text-white px-4 py-2 rounded-lg hover:bg-jci-700 text-sm">
+                    {{ $formation->rapport ? 'Mettre à jour le rapport' : 'Soumettre le rapport' }}
+                </button>
+            </form>
+        @else
+            <div class="rounded-lg bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 text-sm">
+                🔒 Le rapport pourra être soumis <strong>après la fin de la formation</strong>
+                @if ($formation->date_formation) (prévue le {{ $formation->date_formation->format('d/m/Y H:i') }})@endif.
+                Marquez la formation « Terminée » une fois qu'elle a eu lieu.
+            </div>
+        @endif
     </div>
 </div>
 @endsection

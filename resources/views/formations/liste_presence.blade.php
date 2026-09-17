@@ -53,5 +53,13 @@
             @endforelse
         </tbody>
     </table>
+
+    <div style="margin-top:48px; text-align:right;">
+        <div style="display:inline-block; text-align:center;">
+            <div style="font-size:13px; color:#555;">Signature du formateur</div>
+            <div style="font-weight:bold; margin-top:4px;">{{ $formation->formateur?->nom ?: '__________________' }}</div>
+            <div style="border-top:1px solid #333; width:220px; margin-top:40px;"></div>
+        </div>
+    </div>
 </body>
 </html>

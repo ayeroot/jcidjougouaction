@@ -62,7 +62,7 @@
             @endrole
 
             @role('vpe|president')
-                {!! navlink(route('efficacite.index'), 'Efficacité 100%', request()->routeIs('efficacite.*')) !!}
+                {!! navlink(route('efficacite.index'), '100% efficacité', request()->routeIs('efficacite.*')) !!}
             @endrole
 
             @role('president|vpe')
@@ -85,10 +85,10 @@
         <header class="h-16 bg-white border-b flex items-center justify-between px-4 md:px-6">
             <div class="font-semibold text-jci-900">@yield('title', 'Espace')</div>
             <div class="flex items-center gap-4">
-                <div class="text-right leading-tight hidden sm:block">
+                <a href="{{ route('profil.edit') }}" class="text-right leading-tight hidden sm:block hover:opacity-80">
                     <div class="text-sm font-medium">{{ $u->name }}</div>
-                    <div class="text-xs text-slate-500">{{ $u->getRoleNames()->map(fn($r)=>ucfirst($r))->implode(', ') }}</div>
-                </div>
+                    <div class="text-xs text-slate-500">{{ $u->getRoleNames()->map(fn($r)=>ucfirst($r))->implode(', ') }} · Mon profil</div>
+                </a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button class="text-sm text-slate-600 hover:text-jci-900 border rounded-lg px-3 py-1.5">Déconnexion</button>
