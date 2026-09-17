@@ -45,7 +45,8 @@ class FinanceController extends Controller
     {
         $cotisations = Cotisation::with('membre', 'mandat')->latest('date_cotisation')->paginate(15);
         $membres = Membre::orderBy('nom')->get();
-        return view('finances.cotisations', compact('cotisations', 'membres'));
+        $attendu = Membre::COTISATION_ATTENDUE;
+        return view('finances.cotisations', compact('cotisations', 'membres', 'attendu'));
     }
 
     public function storeCotisation(Request $request)
@@ -94,6 +95,7 @@ class FinanceController extends Controller
     {
         $data = $request->validate([
             'libelle'      => ['required', 'string', 'max:255'],
+            'categorie'    => ['required', 'in:' . implode(',', array_keys(\App\Models\Depense::CATEGORIES))],
             'montant'      => ['required', 'numeric', 'min:0'],
             'date_depense' => ['required', 'date'],
             'projet_id'    => ['nullable', 'exists:projets,id'],

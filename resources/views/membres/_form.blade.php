@@ -32,6 +32,18 @@
         </select>
     </div>
     <div>
+        <label class="block text-sm font-medium mb-1">Nom de la promotion</label>
+        <input name="promotion" value="{{ old('promotion', $membre->promotion) }}" placeholder="Ex : Promotion Excellence 2026" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-jci-600 outline-none">
+    </div>
+    <div class="sm:col-span-2">
+        <label class="block text-sm font-medium mb-1">Photo</label>
+        @if ($membre->photo)
+            <img src="{{ \Illuminate\Support\Facades\Storage::url($membre->photo) }}" alt="" class="w-20 h-20 rounded-full object-cover mb-2 border">
+        @endif
+        <input type="file" name="photo" accept="image/*" class="w-full text-sm border rounded-lg px-3 py-2 focus:ring-2 focus:ring-jci-600 outline-none">
+        <p class="text-xs text-slate-400 mt-1">JPG/PNG, 2 Mo max.</p>
+    </div>
+    <div>
         <label class="block text-sm font-medium mb-1">Téléphone</label>
         <input name="telephone" value="{{ old('telephone', $membre->telephone) }}" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-jci-600 outline-none">
     </div>

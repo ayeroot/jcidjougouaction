@@ -6,17 +6,17 @@
     <style>
         * { font-family: Arial, Helvetica, sans-serif; }
         body { color: #1f2937; margin: 32px; }
-        .head { display:flex; justify-content:space-between; align-items:flex-start; border-bottom:3px solid #0B3D6B; padding-bottom:12px; }
-        .brand { font-weight:800; color:#0B3D6B; font-size:20px; }
-        h1 { color:#0B3D6B; font-size:18px; margin:18px 0 4px; }
+        .head { display:flex; justify-content:space-between; align-items:flex-start; border-bottom:3px solid #155e75; padding-bottom:12px; }
+        .brand { font-weight:800; color:#155e75; font-size:20px; }
+        h1 { color:#155e75; font-size:18px; margin:18px 0 4px; }
         .meta { font-size:13px; color:#555; margin-bottom:16px; }
         .meta b { color:#111; }
         table { width:100%; border-collapse:collapse; margin-top:8px; }
         th, td { border:1px solid #999; padding:8px 10px; font-size:13px; text-align:left; }
-        th { background:#0B3D6B; color:#fff; }
+        th { background:#155e75; color:#fff; }
         td.sign { height:34px; }
         .noprint { margin-bottom:16px; }
-        button { background:#0B3D6B; color:#fff; border:0; padding:8px 16px; border-radius:6px; cursor:pointer; }
+        button { background:#155e75; color:#fff; border:0; padding:8px 16px; border-radius:6px; cursor:pointer; }
         @media print { .noprint { display:none; } body { margin:0; } }
     </style>
 </head>

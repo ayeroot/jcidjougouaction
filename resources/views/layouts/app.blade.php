@@ -8,7 +8,7 @@
     <script>
         tailwind.config = {
             theme: { extend: { colors: { jci: {
-                50:'#f2f7fc', 100:'#EAF1F8', 600:'#1B6CA8', 700:'#12558f', 900:'#0B3D6B'
+                50:'#ecfeff', 100:'#cffafe', 600:'#0891b2', 700:'#0e7490', 900:'#155e75'
             } } } }
         }
     </script>
@@ -35,6 +35,7 @@
 
             {!! navlink(route('dashboard'), 'Tableau de bord', request()->routeIs('dashboard')) !!}
             {!! navlink(route('membres.index'), 'Membres', request()->routeIs('membres.*')) !!}
+            {!! navlink(route('anniversaires.index'), '🎂 Anniversaires', request()->routeIs('anniversaires.*')) !!}
 
             @role('vpcd|vpf|president')
                 {!! navlink(route('postulants.index'), 'Recrutement', request()->routeIs('postulants.*')) !!}
@@ -48,17 +49,34 @@
                 {!! navlink(route('finances.index'), 'Finances', request()->routeIs('finances.*')) !!}
             @endrole
 
-            {{-- Modules à venir (lots suivants) --}}
-            @php
-                $bientot = ['Projets', 'Partenaires', 'Archives', 'Efficacité 100%'];
-            @endphp
-            <div class="pt-4 mt-4 border-t border-white/10 text-xs uppercase tracking-wide text-slate-400 px-3 mb-1">Prochains lots</div>
-            @foreach ($bientot as $b)
-                <span class="flex items-center justify-between px-3 py-2 rounded-lg text-slate-400 cursor-not-allowed">
-                    {{ $b }}
-                    <span class="text-[10px] bg-white/10 px-1.5 py-0.5 rounded">bientôt</span>
-                </span>
-            @endforeach
+            @role('vp_projet|president')
+                {!! navlink(route('projets.index'), 'Projets', request()->routeIs('projets.*')) !!}
+            @endrole
+
+            @role('vpre|president')
+                {!! navlink(route('partenaires.index'), 'Partenaires', request()->routeIs('partenaires.*')) !!}
+            @endrole
+
+            @role('secretaire|president')
+                {!! navlink(route('archives.index'), 'Archives', request()->routeIs('archives.*')) !!}
+            @endrole
+
+            @role('vpe|president')
+                {!! navlink(route('efficacite.index'), 'Efficacité 100%', request()->routeIs('efficacite.*')) !!}
+            @endrole
+
+            @role('president|vpe')
+                {!! navlink(route('historique.index'), 'Historique', request()->routeIs('historique.*')) !!}
+            @endrole
+
+            @role('president')
+                {!! navlink(route('mandats.index'), 'Mandats', request()->routeIs('mandats.*')) !!}
+            @endrole
+
+            @role('admin')
+                <div class="pt-4 mt-4 border-t border-white/10 text-xs uppercase tracking-wide text-slate-400 px-3 mb-1">Administration</div>
+                {!! navlink(route('admin.users.index'), 'Utilisateurs', request()->routeIs('admin.users.*')) !!}
+            @endrole
         </nav>
     </aside>
 

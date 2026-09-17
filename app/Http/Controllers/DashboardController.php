@@ -27,6 +27,11 @@ class DashboardController extends Controller
 
         $mandat = Mandat::actif();
 
-        return view('dashboard', compact('stats', 'solde', 'mandat'));
+        // Anniversaires du mois en cours
+        $anniversaires = Membre::anniversaireMois(now()->month)->get()
+                               ->sortBy(fn ($m) => $m->date_naissance->day)
+                               ->values();
+
+        return view('dashboard', compact('stats', 'solde', 'mandat', 'anniversaires'));
     }
 }

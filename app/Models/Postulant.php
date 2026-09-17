@@ -9,7 +9,7 @@ class Postulant extends Model
 {
     use Auditable;
 
-    public const STATUTS = ['nouveau', 'contacte', 'en_formation', 'admis', 'rejete'];
+    public const STATUTS = ['nouveau', 'contacte', 'en_formation', 'examen', 'admis', 'rejete'];
 
     protected $fillable = [
         'nom', 'prenom', 'date_naissance', 'sexe', 'email', 'telephone',

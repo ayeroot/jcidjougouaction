@@ -41,6 +41,28 @@
     </div>
 @endrole
 
+@php
+    $moisNom = [1=>'janvier',2=>'février',3=>'mars',4=>'avril',5=>'mai',6=>'juin',7=>'juillet',8=>'août',9=>'septembre',10=>'octobre',11=>'novembre',12=>'décembre'][now()->month];
+@endphp
+<div class="mt-4 bg-white border rounded-xl p-5">
+    <div class="flex items-center justify-between mb-3">
+        <div class="font-semibold text-jci-900">🎂 Anniversaires de {{ $moisNom }}</div>
+        <a href="{{ route('anniversaires.index') }}" class="text-sm text-jci-600 hover:underline">Tout voir →</a>
+    </div>
+    @if ($anniversaires->count())
+        <div class="flex flex-wrap gap-3">
+            @foreach ($anniversaires->take(6) as $m)
+                <div class="flex items-center gap-2 bg-jci-50 border border-jci-100 rounded-lg px-3 py-2">
+                    <span class="text-lg font-black text-jci-700">{{ $m->date_naissance->day }}</span>
+                    <span class="text-sm">{{ $m->nom_complet }}</span>
+                </div>
+            @endforeach
+        </div>
+    @else
+        <p class="text-sm text-slate-400">Aucun anniversaire ce mois-ci.</p>
+    @endif
+</div>
+
 <div class="mt-6 grid md:grid-cols-2 gap-4">
     <a href="{{ route('membres.index') }}" class="bg-white border rounded-xl p-5 hover:shadow-md transition">
         <div class="font-semibold text-jci-900">Membres</div>
