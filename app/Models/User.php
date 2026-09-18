@@ -32,4 +32,10 @@ class User extends Authenticatable
     {
         return (bool) $this->actif && ! empty($this->password);
     }
+
+    /** Email de réinitialisation personnalisé (français, aux couleurs de JCI). */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new \App\Notifications\ReinitialiserMotDePasse($token));
+    }
 }
