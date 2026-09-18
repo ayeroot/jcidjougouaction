@@ -3,7 +3,7 @@
 
 @section('content')
 @php
-    $peutGerer = $u->hasAnyRole(['vpm', 'president']);
+    $peutGerer = $u->can('membres.gerer');
     $statutsLabels = ['actif'=>'Actif','honoraire'=>'Honoraire','past_president'=>'Past-Président','membre_honneur'=>"Membre d'honneur"];
 @endphp
 

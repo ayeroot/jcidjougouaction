@@ -3,7 +3,7 @@
 
 @section('content')
 @php
-    $peutGerer = $u->hasAnyRole(['vpm', 'president']);
+    $peutGerer = $u->can('membres.gerer');
     // Champs restreints : visibles par le bureau habilité OU par l'intéressé lui-même.
     $peutVoirDetails = $peutGerer || ($u->membre_id === $membre->id);
     $statutsLabels = ['actif'=>'Actif','honoraire'=>'Honoraire','past_president'=>'Past-Président','membre_honneur'=>"Membre d'honneur"];

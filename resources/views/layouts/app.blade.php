@@ -37,46 +37,52 @@
             {!! navlink(route('membres.index'), 'Membres', request()->routeIs('membres.*')) !!}
             {!! navlink(route('anniversaires.index'), '🎂 Anniversaires', request()->routeIs('anniversaires.*')) !!}
 
-            @role('vpcd|vpf|president')
+            @can('postulants.voir')
                 {!! navlink(route('postulants.index'), 'Recrutement', request()->routeIs('postulants.*')) !!}
-            @endrole
+            @endcan
 
-            @role('vpf|president')
+            @can('formations.voir')
                 {!! navlink(route('formations.index'), 'Formations', request()->routeIs('formations.*')) !!}
-            @endrole
+            @endcan
 
-            @role('tresorier|president')
+            @can('finances.voir')
                 {!! navlink(route('finances.index'), 'Finances', request()->routeIs('finances.*')) !!}
-            @endrole
+            @endcan
 
-            @role('vp_projet|president')
+            @can('projets.gerer')
                 {!! navlink(route('projets.index'), 'Projets', request()->routeIs('projets.*')) !!}
-            @endrole
+            @endcan
 
-            @role('vpre|president')
+            @can('partenaires.voir')
                 {!! navlink(route('partenaires.index'), 'Partenaires', request()->routeIs('partenaires.*')) !!}
-            @endrole
+            @endcan
 
-            @role('secretaire|president')
+            @can('archives.voir')
                 {!! navlink(route('archives.index'), 'Archives', request()->routeIs('archives.*')) !!}
-            @endrole
+            @endcan
 
-            @role('vpe|president')
+            @can('efficacite.voir')
                 {!! navlink(route('efficacite.index'), '100% efficacité', request()->routeIs('efficacite.*')) !!}
-            @endrole
+            @endcan
 
-            @role('president|vpe')
+            @can('historique.voir')
                 {!! navlink(route('historique.index'), 'Historique', request()->routeIs('historique.*')) !!}
-            @endrole
+            @endcan
 
-            @role('president')
+            @can('mandats.voir')
                 {!! navlink(route('mandats.index'), 'Mandats', request()->routeIs('mandats.*')) !!}
-            @endrole
+            @endcan
 
-            @role('admin')
+            @canany(['utilisateurs.gerer', 'vitrine.gerer'])
                 <div class="pt-4 mt-4 border-t border-white/10 text-xs uppercase tracking-wide text-slate-400 px-3 mb-1">Administration</div>
+            @endcanany
+            @can('utilisateurs.gerer')
                 {!! navlink(route('admin.users.index'), 'Utilisateurs', request()->routeIs('admin.users.*')) !!}
-            @endrole
+                {!! navlink(route('admin.roles.index'), 'Rôles & permissions', request()->routeIs('admin.roles.*')) !!}
+            @endcan
+            @can('vitrine.gerer')
+                {!! navlink(route('admin.vitrine.edit'), 'Site vitrine', request()->routeIs('admin.vitrine.*')) !!}
+            @endcan
         </nav>
     </aside>
 

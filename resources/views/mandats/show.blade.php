@@ -5,7 +5,7 @@
 
 <div class="flex items-center justify-between mb-4">
     <a href="{{ route('mandats.index') }}" class="text-sm text-slate-500 hover:text-jci-900">← Historique des mandats</a>
-    @role('president')
+    @can('mandats.gerer')
     <div class="flex gap-2">
         @unless ($mandat->actif)
             <form method="POST" action="{{ route('mandats.actif', $mandat) }}">@csrf @method('PATCH')
@@ -14,7 +14,7 @@
         @endunless
         <a href="{{ route('mandats.edit', $mandat) }}" class="text-sm bg-jci-900 text-white px-4 py-2 rounded-lg hover:bg-jci-700">Configurer</a>
     </div>
-    @endrole
+    @endcan
 </div>
 
 @if ($errors->any())
@@ -68,7 +68,7 @@
 </div>
 
 {{-- Configuration du CDL : affectation des postes (Président uniquement) --}}
-@role('president')
+@can('mandats.gerer')
 <div class="bg-white border rounded-xl p-6">
     <h2 class="font-semibold text-jci-900 mb-1">Configuration du CDL — affectation des postes</h2>
     <p class="text-xs text-slate-400 mb-4">Affecter un membre à un poste crée automatiquement son compte (avec le rôle correspondant) et lui envoie un email d'activation. Un seul membre par poste et par année ; l'ancien titulaire est automatiquement désactivé.</p>
@@ -94,5 +94,5 @@
         @endforeach
     </div>
 </div>
-@endrole
+@endcan
 @endsection

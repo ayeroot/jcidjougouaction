@@ -4,7 +4,7 @@
 @section('content')
 @php
     $labels = ['nouveau'=>'Nouveau','contacte'=>'Contacté','en_formation'=>'En formation','examen'=>'Examen','admis'=>'Admis','rejete'=>'Rejeté'];
-    $peutGerer = $u->hasAnyRole(['vpcd','president']);
+    $peutGerer = $u->can('postulants.gerer');
 @endphp
 
 <a href="{{ route('postulants.index') }}" class="text-sm text-slate-500 hover:text-jci-900">← Retour au recrutement</a>

@@ -31,7 +31,7 @@
 </div>
 
 {{-- Solde de caisse : visible uniquement pour les rôles financiers --}}
-@role('tresorier|president')
+@can('finances.voir')
     <div class="mt-4 bg-jci-900 text-white rounded-xl p-5 flex items-center justify-between">
         <div>
             <div class="text-sm text-jci-100">Solde de caisse (global)</div>
@@ -39,7 +39,7 @@
         </div>
         <span class="text-xs bg-white/10 px-2 py-1 rounded">Réservé Trésorier / Président</span>
     </div>
-@endrole
+@endcan
 
 @php
     $moisNom = [1=>'janvier',2=>'février',3=>'mars',4=>'avril',5=>'mai',6=>'juin',7=>'juillet',8=>'août',9=>'septembre',10=>'octobre',11=>'novembre',12=>'décembre'][now()->month];
@@ -68,23 +68,23 @@
         <div class="font-semibold text-jci-900">Membres</div>
         <p class="text-sm text-slate-500 mt-1">Consulter l'annuaire, filtrer, voir les parcours.</p>
     </a>
-    @role('vpcd|vpf|president')
+    @can('postulants.voir')
     <a href="{{ route('postulants.index') }}" class="bg-white border rounded-xl p-5 hover:shadow-md transition">
         <div class="font-semibold text-jci-900">Recrutement</div>
         <p class="text-sm text-slate-500 mt-1">Suivre les postulants et faire avancer le pipeline.</p>
     </a>
-    @endrole
-    @role('vpf|president')
+    @endcan
+    @can('formations.voir')
     <a href="{{ route('formations.index') }}" class="bg-white border rounded-xl p-5 hover:shadow-md transition">
         <div class="font-semibold text-jci-900">Formations</div>
         <p class="text-sm text-slate-500 mt-1">Planifier, pointer les présences, rédiger les rapports.</p>
     </a>
-    @endrole
-    @role('tresorier|president')
+    @endcan
+    @can('finances.voir')
     <a href="{{ route('finances.index') }}" class="bg-white border rounded-xl p-5 hover:shadow-md transition">
         <div class="font-semibold text-jci-900">Finances</div>
         <p class="text-sm text-slate-500 mt-1">Cotisations, contributions, dépenses et solde.</p>
     </a>
-    @endrole
+    @endcan
 </div>
 @endsection
