@@ -9,7 +9,7 @@
     <div class="bg-white border rounded-xl p-6 h-fit">
         <h2 class="font-semibold text-jci-900 mb-1">Enregistrer un versement</h2>
         <p class="text-xs text-slate-400 mb-3">Paiement échelonné : enregistrez chaque tranche. Le membre devient « honorable » une fois {{ $fmt($attendu) }} atteints.</p>
-        @role('tresorier')
+        @can('finances.gerer')
         <form method="POST" action="{{ route('finances.cotisations.store') }}" class="space-y-3">
             @csrf
             <div>
@@ -31,7 +31,7 @@
         </form>
         @else
             <p class="text-sm text-slate-500">Consultation seule : seul le Trésorier peut enregistrer des mouvements financiers.</p>
-        @endrole
+        @endcan
     </div>
 
     <div class="lg:col-span-2 space-y-5">

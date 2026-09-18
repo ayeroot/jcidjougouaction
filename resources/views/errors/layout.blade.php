@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@yield('code') — JCI Djougou Action</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { jci: {
+            50:'#ecfeff',100:'#cffafe',600:'#0891b2',700:'#0e7490',900:'#155e75' } } } } }
+    </script>
+</head>
+<body class="bg-slate-100 min-h-screen grid place-items-center px-4">
+    <div class="text-center max-w-md">
+        <div class="inline-grid place-items-center w-16 h-16 rounded-2xl bg-jci-900 text-white font-black text-xl mb-6">JCI</div>
+        <div class="text-6xl font-black text-jci-900">@yield('code')</div>
+        <h1 class="text-xl font-bold text-slate-800 mt-2">@yield('titre')</h1>
+        <p class="text-slate-500 mt-2">@yield('message')</p>
+        <div class="mt-6 flex items-center justify-center gap-3">
+            <a href="{{ url('/') }}" class="bg-jci-900 text-white font-semibold px-5 py-2.5 rounded-lg hover:bg-jci-700">Accueil</a>
+            <a href="{{ route('dashboard') }}" class="border px-5 py-2.5 rounded-lg hover:bg-white">Mon espace</a>
+        </div>
+    </div>
+</body>
+</html>

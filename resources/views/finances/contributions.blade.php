@@ -8,7 +8,7 @@
 <div class="grid lg:grid-cols-3 gap-5">
     <div class="bg-white border rounded-xl p-6 h-fit">
         <h2 class="font-semibold text-jci-900 mb-3">Enregistrer une contribution</h2>
-        @role('tresorier')
+        @can('finances.gerer')
         <form method="POST" action="{{ route('finances.contributions.store') }}" class="space-y-3">
             @csrf
             <div>
@@ -41,7 +41,7 @@
         </form>
         @else
             <p class="text-sm text-slate-500">Consultation seule : seul le Trésorier peut enregistrer des mouvements financiers.</p>
-        @endrole
+        @endcan
     </div>
 
     <div class="bg-white border rounded-xl overflow-hidden lg:col-span-2">

@@ -16,7 +16,6 @@ If either command is unavailable, detect the user's operating system and install
 
 macOS:
 
-
 ```sh
 /bin/bash -c "$(curl -fsSL https://php.new/install/mac/8.5)"
 ```

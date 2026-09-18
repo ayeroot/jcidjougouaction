@@ -53,11 +53,26 @@ Comptes du CDL identifiés par la **fonction**. Mot de passe : `password`
 
 ## Modules
 
-- **Administration des comptes** (réservé à l'administrateur) : l'admin **sélectionne un membre
-  existant** (aucune ressaisie des informations) et **lui attribue un rôle** ; un **email
-  d'activation** est envoyé au membre pour qu'il **définisse lui-même son mot de passe**.
-  Renvoi d'activation, réinitialisation du mot de passe, activation/désactivation et suppression
-  de compte. L'admin peut modifier l'email d'un compte (l'utilisateur, lui, ne le peut pas).
+- **Gestion des privilèges depuis le dashboard** (rôles & permissions administrables) :
+  le **code définit les permissions disponibles** (`app/Support/Permissions.php`), le
+  **dashboard permet de les attribuer** — sans modification du code. S'appuie sur
+  spatie/laravel-permission (aucun système parallèle).
+  - **Administration → Utilisateurs** : recherche, filtres (rôle, état) ; fiche détaillée avec
+    rôle + permissions (celles **du rôle** et les **permissions supplémentaires** par utilisateur) ;
+    **augmenter / diminuer** les privilèges, **suspendre / réactiver** (avec confirmation).
+  - **Administration → Rôles & permissions** : modifier les permissions accordées par chaque rôle
+    (impacte tous ses utilisateurs) ou les réinitialiser aux valeurs par défaut du code.
+  - **Sécurité** : contrôle des permissions **côté serveur** (middleware `permission:` sur toutes
+    les routes) ; un administrateur **ne peut pas** modifier son propre rôle/permissions
+    (anti auto-élévation) ni se suspendre lui-même ; un compte suspendu ne peut plus se connecter.
+- **Administration des comptes** : l'admin **sélectionne un membre existant** (aucune ressaisie)
+  et **lui attribue un rôle** ; un **email d'activation** est envoyé au membre pour qu'il
+  **définisse lui-même son mot de passe**. Renvoi d'activation, réinitialisation du mot de passe,
+  activation/désactivation, suppression. L'admin peut modifier l'email d'un compte (pas l'utilisateur).
+- **Site vitrine administrable** (**Administration → Site vitrine**, permission `vitrine.gerer`) :
+  titre et sous-titre du hero, texte de mission, logo, informations de contact, et
+  **activation/désactivation des sections** de la page d'accueil — sans toucher au code.
+- **Pages d'erreur personnalisées** (401/403/404/419/429/500/503) aux couleurs de la plateforme.
 - **Activation & mot de passe** : lien d'activation à durée limitée ; **mot de passe oublié**
   avec token sécurisé et expiration ; **profil personnel** (chacun modifie ses infos, mais **pas
   son email** — réservé à l'admin, contrôle backend).

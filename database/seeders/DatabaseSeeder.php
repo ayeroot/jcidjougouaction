@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+use App\Support\Permissions;
 use App\Models\{Mandat, Membre, Carriere, Cotisation, Contribution, Depense, User, Postulant,
                 Projet, Partenaire, Formateur, Formation, Presence, RapportFormation,
                 Archive, Standard, PlanAction};
@@ -16,9 +18,15 @@ class DatabaseSeeder extends Seeder
         $mail = fn (string $prenom, string $nom) =>
             Str::of("$prenom $nom")->ascii()->lower()->replace(' ', '.').'@example.bj';
 
-        /* Rôles */
+        /* ---- Permissions (catalogue défini dans le code) ---- */
+        foreach (Permissions::slugs() as $slug) {
+            Permission::firstOrCreate(['name' => $slug]);
+        }
+
+        /* ---- Rôles + attribution des permissions par défaut ---- */
         foreach (['admin','membre','president','vpe','vpre','vpf','vpm','vpcd','vp_projet','tresorier','secretaire'] as $r) {
-            Role::firstOrCreate(['name' => $r]);
+            $role = Role::firstOrCreate(['name' => $r]);
+            $role->syncPermissions(Permissions::DEFAUTS_ROLES[$r] ?? []);
         }
 
         /* ---- Administrateur (gère les comptes et attribue les rôles) ---- */
