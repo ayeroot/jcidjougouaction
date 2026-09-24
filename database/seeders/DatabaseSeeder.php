@@ -17,6 +17,10 @@ class DatabaseSeeder extends Seeder
     {
         $mail = fn (string $prenom, string $nom) =>
             Str::of("$prenom $nom")->ascii()->lower()->replace(' ', '.').'@example.bj';
+                    // Mot de passe admin : depuis l'environnement, sinon aléatoire (affiché une fois ci-dessous).
+        $adminPassword = env('ADMIN_PASSWORD') ?: Str::password(16);
+        // Comptes du bureau et membres : mot de passe aléatoire — ils définissent le leur via l'email d'activation.
+        $motDePasse = fn () => Str::password(16);
 
         /* ---- Permissions (catalogue défini dans le code) ---- */
         foreach (Permissions::slugs() as $slug) {
@@ -31,7 +35,7 @@ class DatabaseSeeder extends Seeder
 
         /* ---- Administrateur (gère les comptes et attribue les rôles) ---- */
         $admin = User::firstOrCreate(['email' => 'admin@jcidjougou.bj'],
-            ['name' => 'Administrateur', 'password' => 'password']);
+            ['name' => 'Administrateur', 'password' => $adminPassword]);
         $admin->syncRoles(['admin']);
 
         /* Mandat actif */
@@ -64,8 +68,10 @@ class DatabaseSeeder extends Seeder
                     ['montant' => 15000, 'date_cotisation' => '2026-02-15']);
             }
             $user = User::firstOrCreate(['email' => "$login@jcidjougou.bj"],
-                ['name' => $fonction, 'password' => 'password', 'membre_id' => $membre->id]);
+                ['name' => $fonction, 'password' => 'password', $motDePasse() => $membre->id]);
             $user->syncRoles([$role]);
+                    $this->command?->warn("Compte admin : admin@jcidjougou.bj  /  mot de passe : {$adminPassword}");
+        $this->command?->warn('Les autres comptes ont un mot de passe aléatoire (à définir via le lien d\'activation).');
         }
 
         /* ---- Membres simples : statuts, âges et carrières variés (pour les filtres) ---- */
@@ -93,7 +99,7 @@ class DatabaseSeeder extends Seeder
                     ['montant' => 15000, 'date_cotisation' => '2026-03-01']);
             }
             $user = User::firstOrCreate(['email' => $membre->email],
-                ['name' => $membre->nom_complet, 'password' => 'password', 'membre_id' => $membre->id]);
+                ['name' => $membre->nom_complet, 'password' => $motDePasse(), 'membre_id' => $membre->id]);
             $user->syncRoles(['membre']);
         }
 

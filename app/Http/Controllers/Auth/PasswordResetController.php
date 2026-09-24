@@ -19,12 +19,16 @@ class PasswordResetController extends Controller
     /** Envoie le lien de réinitialisation (token sécurisé, à durée limitée). */
     public function envoyer(Request $request)
     {
-        $request->validate(['email' => ['required', 'email']]);
+                $request->validate(['email' => ['required', 'email']]);
 
-        // Password broker : token haché en base, expiration gérée par config auth.passwords.
-        $statut = Password::sendResetLink($request->only('email'));
+        // On n'envoie le lien QUE si le compte existe ET est actif :
+        // un compte suspendu ne doit pas pouvoir se réactiver via « mot de passe oublié ».
+        $user = \App\Models\User::where('email', $request->email)->first();
+        if ($user && $user->actif) {
+            Password::sendResetLink($request->only('email'));
+        }
 
-        // Message neutre pour ne pas révéler l'existence d'un compte.
+        // Message neutre dans tous les cas (ne révèle pas l'existence d'un compte).
         return back()->with('ok', "Si un compte existe pour cette adresse, un email de réinitialisation vient d'être envoyé.");
     }
 
@@ -49,7 +53,6 @@ class PasswordResetController extends Controller
                 $user->forceFill([
                     'password'       => Hash::make($password),
                     'remember_token' => Str::random(60),
-                    'actif'          => true,
                 ])->save();
             }
         );
