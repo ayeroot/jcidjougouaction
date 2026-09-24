@@ -18,13 +18,20 @@
 
 <div class="min-h-screen flex">
 
-    {{-- Barre latérale --}}
-    <aside class="w-64 bg-jci-900 text-white flex-col hidden md:flex">
-        <div class="h-16 flex items-center gap-2 px-5 border-b border-white/10 font-bold">
-            <span class="inline-grid place-items-center w-8 h-8 rounded bg-white text-jci-900 font-black text-sm">JCI</span>
-            Djougou Action
+    {{-- Voile sombre (mobile uniquement, sous le tiroir) --}}
+    <div id="sidebar-overlay" onclick="toggleSidebar(false)" class="fixed inset-0 z-30 bg-black/50 hidden md:hidden"></div>
+
+    {{-- Barre latérale : tiroir coulissant sur mobile, fixe sur ordinateur --}}
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-jci-900 text-white flex flex-col transform -translate-x-full transition-transform duration-200 ease-in-out md:static md:translate-x-0">
+        <div class="h-16 flex items-center justify-between gap-2 px-5 border-b border-white/10 font-bold">
+            <div class="flex items-center gap-2">
+                <span class="inline-grid place-items-center w-8 h-8 rounded bg-white text-jci-900 font-black text-sm">JCI</span>
+                Djougou Action
+            </div>
+            {{-- Fermer (mobile) --}}
+            <button type="button" onclick="toggleSidebar(false)" class="md:hidden text-white/70 hover:text-white text-3xl leading-none" aria-label="Fermer le menu">&times;</button>
         </div>
-        <nav class="flex-1 px-3 py-4 space-y-1 text-sm">
+        <nav class="flex-1 px-3 py-4 space-y-1 text-sm overflow-y-auto">
             @php
                 function navlink($route, $label, $active) {
                     $base = 'flex items-center gap-3 px-3 py-2 rounded-lg ';
@@ -89,7 +96,15 @@
     <div class="flex-1 flex flex-col min-w-0">
         {{-- En-tête --}}
         <header class="h-16 bg-white border-b flex items-center justify-between px-4 md:px-6">
-            <div class="font-semibold text-jci-900">@yield('title', 'Espace')</div>
+            <div class="flex items-center gap-3 min-w-0">
+                {{-- Bouton menu (mobile) --}}
+                <button type="button" onclick="toggleSidebar(true)" class="md:hidden text-jci-900 shrink-0" aria-label="Ouvrir le menu">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+                <div class="font-semibold text-jci-900 truncate">@yield('title', 'Espace')</div>
+            </div>
             <div class="flex items-center gap-4">
                 <a href="{{ route('profil.edit') }}" class="text-right leading-tight hidden sm:block hover:opacity-80">
                     <div class="text-sm font-medium">{{ $u->name }}</div>
@@ -112,6 +127,15 @@
         </main>
     </div>
 </div>
+
+<script>
+    function toggleSidebar(open) {
+        const sb = document.getElementById('sidebar');
+        const ov = document.getElementById('sidebar-overlay');
+        sb.classList.toggle('-translate-x-full', !open);
+        ov.classList.toggle('hidden', !open);
+    }
+</script>
 
 </body>
 </html>

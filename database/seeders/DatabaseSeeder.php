@@ -17,7 +17,8 @@ class DatabaseSeeder extends Seeder
     {
         $mail = fn (string $prenom, string $nom) =>
             Str::of("$prenom $nom")->ascii()->lower()->replace(' ', '.').'@example.bj';
-                    // Mot de passe admin : depuis l'environnement, sinon aléatoire (affiché une fois ci-dessous).
+
+        // Mot de passe admin : depuis l'environnement, sinon aléatoire (affiché une fois ci-dessous).
         $adminPassword = env('ADMIN_PASSWORD') ?: Str::password(16);
         // Comptes du bureau et membres : mot de passe aléatoire — ils définissent le leur via l'email d'activation.
         $motDePasse = fn () => Str::password(16);
@@ -37,6 +38,8 @@ class DatabaseSeeder extends Seeder
         $admin = User::firstOrCreate(['email' => 'admin@jcidjougou.bj'],
             ['name' => 'Administrateur', 'password' => $adminPassword]);
         $admin->syncRoles(['admin']);
+        $this->command?->warn("Compte admin : admin@jcidjougou.bj  /  mot de passe : {$adminPassword}");
+        $this->command?->warn('Les autres comptes ont un mot de passe aléatoire (à définir via le lien d\'activation).');
 
         /* Mandat actif */
         $mandat = Mandat::firstOrCreate(['annee' => '2026'],
@@ -68,10 +71,8 @@ class DatabaseSeeder extends Seeder
                     ['montant' => 15000, 'date_cotisation' => '2026-02-15']);
             }
             $user = User::firstOrCreate(['email' => "$login@jcidjougou.bj"],
-                ['name' => $fonction, 'password' => 'password', $motDePasse() => $membre->id]);
+                ['name' => $fonction, 'password' => $motDePasse(), 'membre_id' => $membre->id]);
             $user->syncRoles([$role]);
-                    $this->command?->warn("Compte admin : admin@jcidjougou.bj  /  mot de passe : {$adminPassword}");
-        $this->command?->warn('Les autres comptes ont un mot de passe aléatoire (à définir via le lien d\'activation).');
         }
 
         /* ---- Membres simples : statuts, âges et carrières variés (pour les filtres) ---- */
