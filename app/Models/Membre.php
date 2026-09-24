@@ -27,7 +27,7 @@ class Membre extends Model
     ];
 
     /** Montant annuel attendu de cotisation (pour le paiement échelonné). */
-    public const COTISATION_ATTENDUE = 15000;
+    public const COTISATION_ATTENDUE = 30000;
 
     protected $fillable = [
         'nom', 'prenom', 'date_naissance', 'sexe', 'email', 'telephone',

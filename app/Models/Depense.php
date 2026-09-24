@@ -7,12 +7,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Depense extends Model
 {
     use Auditable;
-    public const CATEGORIES = [
-        'projet'        => 'Projet',
-        'prestation'    => 'Prestation (graphiste, …)',
-        'secretariat'   => 'Secrétariat',
-        'fonctionnement'=> 'Fonctionnement',
-        'autre'         => 'Autre',
+       public const CATEGORIES = [
+        'projet'         => 'Projet',
+        'prestation'     => 'Prestation (graphiste, dev…)',
+        'location'       => 'Location',
+        'domaine'        => 'Nom de domaine / hébergement',
+        'secretariat'    => 'Secrétariat',
+        'fonctionnement' => 'Fonctionnement',
+        'autre'          => 'Autre charge fixe',
     ];
 
     protected $fillable = ['libelle', 'categorie', 'montant', 'date_depense', 'projet_id', 'mandat_id'];

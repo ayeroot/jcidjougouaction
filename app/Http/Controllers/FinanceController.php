@@ -61,26 +61,31 @@ class FinanceController extends Controller
         return back()->with('ok', 'Cotisation enregistrée.');
     }
 
-    /* --------------------------------------------------- Contributions */
+    /* --------------------------------------------------- Recettes / Dons */
     public function contributions()
     {
-        $contributions = Contribution::with('partenaire', 'projet')->latest('date_contribution')->paginate(15);
+        $contributions = Contribution::with('membre', 'partenaire', 'projet')->latest('date_contribution')->paginate(15);
+        $membres = Membre::orderBy('nom')->get();
         $partenaires = Partenaire::orderBy('nom')->get();
         $projets = Projet::orderBy('titre')->get();
-        return view('finances.contributions', compact('contributions', 'partenaires', 'projets'));
+        $types = Contribution::TYPES;
+        return view('finances.contributions', compact('contributions', 'membres', 'partenaires', 'projets', 'types'));
     }
 
     public function storeContribution(Request $request)
     {
         $data = $request->validate([
-            'source'            => ['nullable', 'string', 'max:255'],
+            'type'              => ['required', 'in:' . implode(',', array_keys(Contribution::TYPES))],
             'montant'           => ['required', 'numeric', 'min:0'],
             'date_contribution' => ['required', 'date'],
-            'partenaire_id'     => ['nullable', 'exists:partenaires,id'],
+            'membre_id'         => ['nullable', 'exists:membres,id', 'required_if:type,participation_membre,contribution_membre'],
+            'partenaire_id'     => ['nullable', 'exists:partenaires,id', 'required_if:type,don_partenaire'],
+            'donateur'          => ['nullable', 'string', 'max:255', 'required_if:type,don_particulier'],
+            'source'            => ['nullable', 'string', 'max:255'],
             'projet_id'         => ['nullable', 'exists:projets,id'],
         ]);
         Contribution::create($data);
-        return back()->with('ok', 'Contribution enregistrée.');
+        return back()->with('ok', 'Recette enregistrée.');
     }
 
     /* --------------------------------------------------- Dépenses */
@@ -98,10 +103,14 @@ class FinanceController extends Controller
             'categorie'    => ['required', 'in:' . implode(',', array_keys(\App\Models\Depense::CATEGORIES))],
             'montant'      => ['required', 'numeric', 'min:0'],
             'date_depense' => ['required', 'date'],
-            'projet_id'    => ['nullable', 'exists:projets,id'],
+            'projet_id'    => ['nullable', 'exists:projets,id', 'required_if:categorie,projet'],
         ]);
+        // Une charge hors projet ne doit pas rester rattachée à un projet.
+        if ($data['categorie'] !== 'projet') {
+            $data['projet_id'] = null;
+        }
         $data['mandat_id'] = Mandat::actif()?->id;
         Depense::create($data);
         return back()->with('ok', 'Dépense enregistrée.');
     }
-}
+};

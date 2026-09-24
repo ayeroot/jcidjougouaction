@@ -2,7 +2,7 @@
     $tabs = [
         ['finances.index',"Vue d'ensemble"],
         ['finances.cotisations','Cotisations'],
-        ['finances.contributions','Contributions'],
+        ['finances.contributions','Recettes / Dons'],
         ['finances.depenses','Dépenses'],
     ];
 @endphp
