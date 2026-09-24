@@ -73,19 +73,81 @@
 @if ($showPartenaires)
 <section id="partenaires" class="bg-slate-50 border-y">
     <div class="max-w-6xl mx-auto px-4 py-16">
-        <h2 class="text-2xl font-bold text-jci-900">Nos partenaires</h2>
-        <div class="mt-8 flex flex-wrap gap-4">
-            @forelse ($partenaires as $p)
-                <div class="bg-white border rounded-lg px-5 py-4 min-w-[160px]">
-                    <div class="font-semibold">{{ $p->nom }}</div>
-                    <div class="text-xs text-slate-500">{{ $p->type }}</div>
+        <h2 class="text-2xl font-bold text-jci-900 text-center">Nos partenaires</h2>
+
+        @if ($partenaires->isEmpty())
+            <p class="text-slate-500 text-center mt-6">Nos partenaires apparaîtront ici.</p>
+        @else
+            {{-- Carrousel défilant (pause au survol) --}}
+            <div class="mt-10 overflow-hidden partenaires-marquee">
+                <div class="flex gap-6 w-max partenaires-track">
+                    @foreach ($partenaires->concat($partenaires) as $p)
+                        <button type="button"
+                            onclick="ouvrirPartenaire(this)"
+                            data-nom="{{ $p->nom }}"
+                            data-type="{{ $p->type }}"
+                            data-logo="{{ $p->logo ? asset('storage/'.$p->logo) : '' }}"
+                            data-description="{{ $p->description }}"
+                            class="shrink-0 w-40 bg-white border rounded-xl p-4 flex flex-col items-center justify-center gap-3 hover:shadow-lg hover:-translate-y-0.5 transition">
+                            @if ($p->logo)
+                                <img src="{{ asset('storage/'.$p->logo) }}" alt="{{ $p->nom }}" class="h-16 object-contain">
+                            @else
+                                <div class="h-16 w-16 grid place-items-center rounded-full bg-jci-100 text-jci-900 font-bold text-2xl">{{ mb_substr($p->nom, 0, 1) }}</div>
+                            @endif
+                            <span class="text-sm font-medium text-jci-900 text-center truncate w-full">{{ $p->nom }}</span>
+                        </button>
+                    @endforeach
                 </div>
-            @empty
-                <p class="text-slate-500">Nos partenaires apparaîtront ici.</p>
-            @endforelse
-        </div>
+            </div>
+        @endif
     </div>
 </section>
+
+{{-- Modale description partenaire --}}
+<div id="modal-partenaire" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4"
+     onclick="fermerPartenaire(event)">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 relative" onclick="event.stopPropagation()">
+        <button type="button" onclick="fermerPartenaire()"
+                class="absolute top-3 right-4 text-slate-400 hover:text-slate-700 text-3xl leading-none">&times;</button>
+        <div class="flex items-center gap-4">
+            <img id="mp-logo" src="" alt="" class="h-16 w-16 object-contain hidden">
+            <div>
+                <h3 id="mp-nom" class="text-lg font-bold text-jci-900"></h3>
+                <p id="mp-type" class="text-sm text-slate-500"></p>
+            </div>
+        </div>
+        <p id="mp-description" class="mt-4 text-slate-600 text-sm whitespace-pre-line"></p>
+    </div>
+</div>
+
+<style>
+    @keyframes defile-partenaires { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .partenaires-track { animation: defile-partenaires 30s linear infinite; }
+    .partenaires-marquee:hover .partenaires-track { animation-play-state: paused; }
+</style>
+
+<script>
+    function ouvrirPartenaire(btn) {
+        const logo = btn.dataset.logo;
+        const img = document.getElementById('mp-logo');
+        if (logo) { img.src = logo; img.classList.remove('hidden'); }
+        else { img.classList.add('hidden'); }
+        document.getElementById('mp-nom').textContent = btn.dataset.nom || '';
+        document.getElementById('mp-type').textContent = btn.dataset.type || '';
+        document.getElementById('mp-description').textContent =
+            btn.dataset.description || 'Aucune description pour le moment.';
+        const m = document.getElementById('modal-partenaire');
+        m.classList.remove('hidden'); m.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+    }
+    function fermerPartenaire(e) {
+        if (e && e.target && e.target.id !== 'modal-partenaire') return;
+        const m = document.getElementById('modal-partenaire');
+        m.classList.add('hidden'); m.classList.remove('flex');
+        document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') fermerPartenaire(); });
+</script>
 @endif
 
 {{-- Appel à l'action --}}

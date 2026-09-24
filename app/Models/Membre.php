@@ -13,13 +13,16 @@ class Membre extends Model
     public const FONCTIONS = [
         'Président Local',
         'VP Exécutive',
-        'VP Relations Extérieures',
+        'Secrétaire Général',
+        'Trésorier Général',
+        'VP Affaires et Entrepreneuriat',
+        'VP Communications et Marketing',
+        'VP Croissance & Développement',
         'VP Formations',
         'VP Management',
-        'VP Croissance & Développement',
         'VP Projet & Thème principal',
-        'Trésorier Général',
-        'Secrétaire Général',
+        'VP Relations Extérieures',
+        'Auditeurs Généraux',
         'Membre',
     ];
 
@@ -28,7 +31,7 @@ class Membre extends Model
 
     protected $fillable = [
         'nom', 'prenom', 'date_naissance', 'sexe', 'email', 'telephone',
-        'photo', 'fonction', 'promotion', 'ville', 'adresse', 'statut', 'date_adhesion',
+        'photo', 'fonction', 'promotion', 'ville', 'adresse', 'profession','statut', 'date_adhesion',
     ];
     protected $casts = ['date_naissance' => 'date', 'date_adhesion' => 'date'];
 

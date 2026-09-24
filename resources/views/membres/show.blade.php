@@ -46,6 +46,7 @@
                 <div><div class="text-slate-400">Âge</div><div class="font-medium">{{ $membre->age ? $membre->age.' ans' : '—' }}</div></div>
                 <div><div class="text-slate-400">Adhésion</div><div class="font-medium">{{ $membre->date_adhesion?->format('d/m/Y') ?: '—' }}</div></div>
                 <div><div class="text-slate-400">Promotion</div><div class="font-medium">{{ $membre->promotion ?: '—' }}</div></div>
+                <div><div class="text-slate-400">Profession</div><div class="font-medium">{{ $membre->profession ?: '—' }}</div></div>
             </div>
         </div>
 

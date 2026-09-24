@@ -9,6 +9,7 @@ return new class extends Migration {
             $t->string('nom');
             $t->string('type')->nullable();
             $t->string('contact')->nullable();
+            $t->text('description')->nullable();   // ← AJOUTER
             $t->string('logo')->nullable();
             $t->boolean('public')->default(true);
             $t->timestamps();

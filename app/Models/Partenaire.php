@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Partenaire extends Model
 {
     use Auditable;
-    protected $fillable = ['nom', 'type', 'contact', 'logo', 'public'];
+    protected $fillable = ['nom', 'type', 'contact', 'description', 'logo', 'public'];
     protected $casts = ['public' => 'boolean'];
     public function contributions(): HasMany { return $this->hasMany(Contribution::class); }
     public function scopePublics($q) { return $q->where('public', true); }

@@ -68,6 +68,10 @@
         <label class="block text-sm font-medium mb-1">Adresse</label>
         <input name="adresse" value="{{ old('adresse', $membre->adresse) }}" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-jci-600 outline-none">
     </div>
+    <div class="sm:col-span-2">
+        <label class="block text-sm font-medium mb-1">Profession</label>
+        <input name="profession" value="{{ old('profession', $membre->profession) }}" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-jci-600 outline-none">
+    </div>
     <div>
         <label class="block text-sm font-medium mb-1">Statut *</label>
         <select name="statut" required class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-jci-600 outline-none">

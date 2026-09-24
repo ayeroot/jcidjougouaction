@@ -5,14 +5,18 @@
 <div class="grid lg:grid-cols-3 gap-5">
     <div class="bg-white border rounded-xl p-6 h-fit">
         <h2 class="font-semibold text-jci-900 mb-3">Ajouter un partenaire</h2>
-        <form method="POST" action="{{ route('partenaires.store') }}" class="space-y-3">
-            @csrf
+        <form method="POST" action="{{ route('partenaires.store') }}" enctype="multipart/form-data" class="space-y-3">            @csrf
             <div><label class="block text-sm font-medium mb-1">Nom *</label>
                 <input name="nom" required class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-jci-600 outline-none"></div>
             <div><label class="block text-sm font-medium mb-1">Type</label>
                 <input name="type" placeholder="Institution, Média, Entreprise…" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-jci-600 outline-none"></div>
             <div><label class="block text-sm font-medium mb-1">Contact</label>
                 <input name="contact" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-jci-600 outline-none"></div>
+                <div><label class="block text-sm font-medium mb-1">Description</label>
+    <textarea name="description" rows="3" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-jci-600 outline-none">{{ old('description') }}</textarea></div>
+    <div><label class="block text-sm font-medium mb-1">Logo</label>
+    <input type="file" name="logo" accept="image/*" class="w-full border rounded-lg px-3 py-2 text-sm">
+    <p class="text-xs text-slate-400 mt-1">Image, 2 Mo max.</p></div>
             <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="public" value="1" checked class="rounded border-slate-300"> Visible sur la vitrine</label>
             <button class="w-full bg-jci-900 text-white py-2 rounded-lg hover:bg-jci-700 text-sm">Ajouter</button>
         </form>
@@ -25,6 +29,12 @@
             <tbody class="divide-y">
                 @forelse ($partenaires as $p)
                     <tr>
+                        <td class="px-4 py-3 font-medium text-jci-900">
+    <div class="flex items-center gap-2">
+        @if($p->logo)<img src="{{ asset('storage/'.$p->logo) }}" class="w-8 h-8 rounded object-cover border">@endif
+        {{ $p->nom }} @unless($p->public)<span class="text-xs text-slate-400">(privé)</span>@endunless
+    </div>
+</td>
                         <td class="px-4 py-3 font-medium text-jci-900">{{ $p->nom }} @unless($p->public)<span class="text-xs text-slate-400">(privé)</span>@endunless</td>
                         <td class="px-4 py-3 text-slate-500">{{ $p->type ?: '—' }}</td>
                         <td class="px-4 py-3 text-slate-500">{{ $p->contact ?: '—' }}</td>

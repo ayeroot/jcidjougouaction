@@ -16,6 +16,7 @@ return new class extends Migration {
             $t->string('fonction')->nullable();      // fonction dans le bureau
             $t->string('ville')->nullable();
             $t->string('adresse')->nullable();
+            $t->string('profession')->nullable();
             // statut : actif, honoraire, past_president, membre_honneur
             $t->string('statut')->default('actif');
             $t->date('date_adhesion')->nullable();

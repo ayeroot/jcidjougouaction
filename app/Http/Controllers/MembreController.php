@@ -104,7 +104,8 @@ class MembreController extends Controller
             'photo'          => [$photoObligatoire ? 'required' : 'nullable', 'image', 'max:2048'],
             'ville'          => ['nullable', 'string', 'max:255'],
             'adresse'        => ['nullable', 'string', 'max:255'],
-            'statut'         => ['required', 'in:actif,honoraire,past_president,membre_honneur'],
+            'profession'     => ['nullable', 'string', 'max:255'],
+            'statut'         => ['required', 'in:membre_simple,past_president,membre_honneur'],
             'date_adhesion'  => ['nullable', 'date'],
         ], [
             'photo.required' => 'La photo du membre est obligatoire.',
