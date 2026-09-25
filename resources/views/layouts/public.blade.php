@@ -12,7 +12,7 @@
     <header class="bg-jci-900 text-white sticky top-0 z-30 shadow">
         <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
             <a href="{{ route('home') }}" class="flex items-center gap-2 font-bold text-lg">
-                <span class="inline-grid place-items-center w-9 h-9 rounded bg-white text-jci-900 font-black">JCI</span>
+                <x-logo taille="w-9 h-9" />
                 <span>Djougou Action</span>
             </a>
             <nav class="flex items-center gap-6 text-sm">
@@ -31,7 +31,10 @@
     <footer class="bg-slate-900 text-slate-300 mt-20">
         <div class="max-w-6xl mx-auto px-4 py-10 grid sm:grid-cols-3 gap-8 text-sm">
             <div>
-                <div class="text-white font-bold text-lg mb-2">JCI Djougou Action</div>
+                <div class="flex items-center gap-3 mb-3">
+                    <x-logo taille="w-12 h-12" />
+                    <span class="text-white font-bold text-lg">JCI Djougou Action</span>
+                </div>
                 <p class="text-slate-400">Organisation Locale Membre de la Jeune Chambre Internationale, Djougou, Bénin.</p>
             </div>
             <div>

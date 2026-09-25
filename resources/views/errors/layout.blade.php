@@ -9,7 +9,7 @@
 </head>
 <body class="bg-slate-100 min-h-screen grid place-items-center px-4">
     <div class="text-center max-w-md">
-        <div class="inline-grid place-items-center w-16 h-16 rounded-2xl bg-jci-900 text-white font-black text-xl mb-6">JCI</div>
+        <div class="flex justify-center mb-6"><x-logo taille="w-16 h-16" fond="fonce" /></div>
         <div class="text-6xl font-black text-jci-900">@yield('code')</div>
         <h1 class="text-xl font-bold text-slate-800 mt-2">@yield('titre')</h1>
         <p class="text-slate-500 mt-2">@yield('message')</p>

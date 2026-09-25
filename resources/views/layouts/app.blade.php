@@ -19,7 +19,7 @@
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-jci-900 text-white flex flex-col transform -translate-x-full transition-transform duration-200 ease-in-out md:static md:translate-x-0">
         <div class="h-16 flex items-center justify-between gap-2 px-5 border-b border-white/10 font-bold">
             <div class="flex items-center gap-2">
-                <span class="inline-grid place-items-center w-8 h-8 rounded bg-white text-jci-900 font-black text-sm">JCI</span>
+                <x-logo taille="w-8 h-8" />
                 Djougou Action
             </div>
             {{-- Fermer (mobile) --}}

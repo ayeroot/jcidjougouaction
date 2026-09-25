@@ -10,7 +10,7 @@
 <body class="bg-slate-100 min-h-screen grid place-items-center px-4">
     <div class="w-full max-w-md">
         <a href="{{ route('home') }}" class="flex items-center justify-center gap-2 font-bold text-jci-900 text-xl mb-6">
-            <span class="inline-grid place-items-center w-10 h-10 rounded bg-jci-900 text-white font-black">JCI</span>
+            <x-logo taille="w-10 h-10" fond="fonce" />
             Djougou Action
         </a>
         <div class="bg-white border rounded-2xl shadow-sm p-8">
