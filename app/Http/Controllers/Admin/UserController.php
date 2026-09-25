@@ -18,6 +18,26 @@ class UserController extends Controller
     /** Libellés des rôles (source unique : catalogue Permissions). */
     public const ROLES = Permissions::ROLES;
 
+    /**
+     * Le compte super administrateur n'est modifiable que par lui-même
+     * (un administrateur ordinaire ne peut ni le modifier, ni le suspendre, ni le supprimer).
+     */
+    private function proteger(User $user): void
+    {
+        abort_if($user->estSuperAdmin() && ! auth()->user()->estSuperAdmin(), 403,
+            'Le compte super administrateur est protégé.');
+    }
+
+    /** Rôles proposés à la création d'un compte. */
+    private function rolesAttribuables(): array
+    {
+        $roles = self::ROLES;
+        if (! config('jci.acces_membres')) {
+            unset($roles['membre']); // accès membres fermé : pas de compte « membre »
+        }
+        return $roles;
+    }
+
     /** Liste avec recherche et filtres (rôle, état). */
     public function index(Request $request)
     {
@@ -37,20 +57,20 @@ class UserController extends Controller
         }
 
         $users = $query->orderBy('name')->paginate(20)->withQueryString();
-        return view('admin.users.index', ['users' => $users, 'roles' => self::ROLES]);
+        return view('admin.users.index', ['users' => $users, 'roles' => self::ROLES + [Permissions::ROLE_SUPER => 'Super administrateur']]);
     }
 
     public function create()
     {
         $membresSansCompte = Membre::whereDoesntHave('user')->whereNotNull('email')->orderBy('nom')->get();
-        return view('admin.users.create', ['roles' => self::ROLES, 'membres' => $membresSansCompte]);
+        return view('admin.users.create', ['roles' => $this->rolesAttribuables(), 'membres' => $membresSansCompte]);
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
             'membre_id' => ['required', 'exists:membres,id'],
-            'role'      => ['required', Rule::in(array_keys(self::ROLES))],
+            'role'      => ['required', Rule::in(array_keys($this->rolesAttribuables()))],
         ]);
 
         // M1 — Président / Trésorier : uniquement via l'affectation du CDL (Mandats).
@@ -76,6 +96,7 @@ class UserController extends Controller
     /** Fiche détaillée : rôle, permissions du rôle, permissions directes. */
     public function edit(User $user)
     {
+        $this->proteger($user);
         $user->load('roles', 'permissions', 'membre');
         $role = $user->getRoleNames()->first();
         $permsDuRole = $role ? Role::findByName($role)->permissions->pluck('name')->all() : [];
@@ -96,6 +117,7 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        $this->proteger($user);
         $data = $request->validate([
             'email'         => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'role'          => ['required', Rule::in(array_keys(self::ROLES))],
@@ -157,6 +179,7 @@ class UserController extends Controller
 
     public function renvoyerActivation(User $user)
     {
+        $this->proteger($user);
         $envoye = $this->comptes->envoyerActivation($user);
         return back()->with('ok', $envoye
             ? "Lien d'activation renvoyé à {$user->email}."
@@ -165,6 +188,7 @@ class UserController extends Controller
 
     public function resetPassword(User $user)
     {
+        $this->proteger($user);
         \Illuminate\Support\Facades\Password::sendResetLink(['email' => $user->email]);
         return back()->with('ok', "Lien de réinitialisation envoyé à {$user->email}.");
     }
@@ -172,6 +196,7 @@ class UserController extends Controller
     /** Suspendre / réactiver un compte (confirmation demandée côté interface). */
     public function toggleActif(User $user)
     {
+        $this->proteger($user);
         if ($user->id === auth()->id()) {
             return back()->with('ok', "Vous ne pouvez pas suspendre votre propre compte.");
         }
@@ -184,6 +209,7 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+        $this->proteger($user);
         if ($user->id === auth()->id()) {
             return back()->with('ok', "Vous ne pouvez pas supprimer votre propre compte.");
         }

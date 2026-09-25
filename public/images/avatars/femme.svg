@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Avatar féminin">
+  <defs><clipPath id="c"><circle cx="64" cy="64" r="64"/></clipPath></defs>
+  <g clip-path="url(#c)">
+    <rect width="128" height="128" fill="#ecfeff"/>
+    <!-- cheveux (arrière) -->
+    <path d="M34 60c0-26 13-40 30-40s30 14 30 40v34H34z" fill="#1f2937"/>
+    <!-- buste / haut -->
+    <path d="M14 128c2-26 22-40 50-40s48 14 50 40z" fill="#0891b2"/>
+    <path d="M50 90q14 14 28 0" fill="none" stroke="#ecfeff" stroke-width="4" stroke-linecap="round"/>
+    <!-- cou -->
+    <rect x="55" y="72" width="18" height="20" rx="6" fill="#8d5a3b"/>
+    <!-- visage -->
+    <ellipse cx="64" cy="55" rx="21" ry="24" fill="#a86b47"/>
+    <!-- frange -->
+    <path d="M42 52c2-17 11-25 22-25s20 8 22 25c-6-9-13-13-22-13s-16 4-22 13z" fill="#1f2937"/>
+    <!-- boucles d'oreilles -->
+    <circle cx="43" cy="66" r="3" fill="#fbbf24"/>
+    <circle cx="85" cy="66" r="3" fill="#fbbf24"/>
+    <!-- yeux + sourire -->
+    <circle cx="56" cy="56" r="2.6" fill="#1f2937"/>
+    <circle cx="72" cy="56" r="2.6" fill="#1f2937"/>
+    <path d="M56 67q8 6 16 0" fill="none" stroke="#9f1239" stroke-width="2.6" stroke-linecap="round"/>
+  </g>
+</svg>

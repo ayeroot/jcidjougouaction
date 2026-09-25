@@ -15,13 +15,16 @@ class EnsureCompteActif
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->user() && ! $request->user()->actif) {
+        $user = $request->user();
+
+        if ($user && (! $user->actif || ! $user->aAccesPlateforme())) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            return redirect()->route('login')
-                ->withErrors(['email' => 'Votre compte a été désactivé.']);
+            return redirect()->route('login')->withErrors(['email' => $user->actif
+                ? "L'espace membre n'est pas encore ouvert à tous les membres."
+                : 'Votre compte a été désactivé.']);
         }
 
         return $next($request);

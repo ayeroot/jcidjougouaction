@@ -90,7 +90,7 @@ class AccountService
      */
     public function desactiverAnciensDuRole(string $role, int $sauf): void
     {
-        if (in_array($role, ['membre', 'admin'], true)) return;
+        if (in_array($role, ['membre', 'admin', \App\Support\Permissions::ROLE_SUPER], true)) return;
 
         User::role($role)->where('id', '!=', $sauf)->where('actif', true)
             ->get()->each(function (User $autre) {

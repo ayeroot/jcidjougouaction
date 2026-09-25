@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Avatar masculin">
+  <defs><clipPath id="c"><circle cx="64" cy="64" r="64"/></clipPath></defs>
+  <g clip-path="url(#c)">
+    <rect width="128" height="128" fill="#cffafe"/>
+    <!-- buste / chemise -->
+    <path d="M14 128c2-26 22-40 50-40s48 14 50 40z" fill="#155e75"/>
+    <path d="M52 90l12 16 12-16" fill="none" stroke="#ecfeff" stroke-width="4" stroke-linejoin="round"/>
+    <!-- cou -->
+    <rect x="54" y="72" width="20" height="20" rx="6" fill="#8d5a3b"/>
+    <!-- visage -->
+    <ellipse cx="64" cy="54" rx="22" ry="25" fill="#a86b47"/>
+    <!-- oreilles -->
+    <ellipse cx="42" cy="56" rx="4" ry="6" fill="#98603f"/>
+    <ellipse cx="86" cy="56" rx="4" ry="6" fill="#98603f"/>
+    <!-- cheveux courts -->
+    <path d="M41 50c0-18 10-27 23-27s23 9 23 27c-3-8-10-12-23-12s-20 4-23 12z" fill="#1f2937"/>
+    <!-- yeux + sourire -->
+    <circle cx="56" cy="55" r="2.6" fill="#1f2937"/>
+    <circle cx="72" cy="55" r="2.6" fill="#1f2937"/>
+    <path d="M56 66q8 6 16 0" fill="none" stroke="#5b3421" stroke-width="2.6" stroke-linecap="round"/>
+  </g>
+</svg>

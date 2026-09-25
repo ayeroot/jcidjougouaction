@@ -15,7 +15,7 @@ class RoleController extends Controller
 
     public function index()
     {
-        $roles = Role::with('permissions')->orderBy('name')->get();
+        $roles = Role::with('permissions')->where('name', '!=', Permissions::ROLE_SUPER)->orderBy('name')->get();
         return view('admin.roles.index', [
             'roles'     => $roles,
             'labels'    => Permissions::ROLES,
@@ -26,6 +26,7 @@ class RoleController extends Controller
     /** Met à jour les permissions d'un rôle (impacte tous ses utilisateurs). */
     public function update(Request $request, Role $role)
     {
+        abort_if($role->name === Permissions::ROLE_SUPER, 403, 'Le rôle super administrateur a tous les droits et ne se modifie pas.');
         $data = $request->validate([
             'permissions'   => ['array'],
             'permissions.*' => [Rule::in(Permissions::slugs())],
@@ -57,6 +58,7 @@ class RoleController extends Controller
     /** Réinitialise un rôle à ses permissions par défaut (définies dans le code). */
     public function reset(Role $role)
     {
+        abort_if($role->name === Permissions::ROLE_SUPER, 403, 'Le rôle super administrateur a tous les droits et ne se modifie pas.');
         $role->syncPermissions(Permissions::DEFAUTS_ROLES[$role->name] ?? []);
         Journal::ecrire('ROLE_RESET', 'Spatie\\Permission\\Models\\Role', $role->id);
         return back()->with('ok', "Rôle « ".(Permissions::ROLES[$role->name] ?? $role->name)." » réinitialisé aux valeurs par défaut.");

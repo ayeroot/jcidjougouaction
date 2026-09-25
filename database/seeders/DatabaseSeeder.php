@@ -4,9 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
-use App\Support\Permissions;
 use App\Models\{Mandat, Membre, Carriere, Cotisation, Contribution, Depense, User, Postulant,
                 Projet, Partenaire, Formateur, Formation, Presence, RapportFormation,
                 Archive, Standard, PlanAction};
@@ -24,15 +21,14 @@ class DatabaseSeeder extends Seeder
         // réellement d'être enregistré ; ceux des comptes non-admin seulement en local.
         $enLocal = app()->environment('local');
 
-        /* ---- Permissions (catalogue défini dans le code) ---- */
-        foreach (Permissions::slugs() as $slug) {
-            Permission::firstOrCreate(['name' => $slug]);
-        }
+        /* ---- Rôles et permissions (sans données personnelles) ---- */
+        $this->call(RolesPermissionsSeeder::class);
 
-        /* ---- Rôles + attribution des permissions par défaut ---- */
-        foreach (['admin','membre','president','vpe','vpre','vpf','vpm','vpcd','vp_projet','tresorier','secretaire'] as $r) {
-            $role = Role::firstOrCreate(['name' => $r]);
-            $role->syncPermissions(Permissions::DEFAUTS_ROLES[$r] ?? []);
+        // En production : JAMAIS de données de démo ni de comptes générés ici.
+        // Le premier compte se crée avec « php artisan jci:installer ».
+        if (app()->isProduction()) {
+            $this->command?->warn('Production : données de démo ignorées. Lancez « php artisan jci:installer » pour créer le super administrateur.');
+            return;
         }
 
         /* ---- Administrateur (gère les comptes et attribue les rôles) ---- */
@@ -104,9 +100,8 @@ class DatabaseSeeder extends Seeder
                 Cotisation::firstOrCreate(['membre_id' => $membre->id, 'mandat_id' => $mandat->id],
                     ['montant' => 15000, 'date_cotisation' => '2026-03-01']);
             }
-            $user = $this->compte($membre->email,
-                ['name' => $membre->nom_complet, 'membre_id' => $membre->id], afficher: $enLocal);
-            $user->syncRoles(['membre']);
+            // Pas de compte pour les membres simples : l'accès à la plateforme est
+            // réservé à l'administration et aux postes du CDL (config jci.acces_membres).
         }
 
         /* ---- Postulants ---- */

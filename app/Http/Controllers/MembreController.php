@@ -48,8 +48,8 @@ class MembreController extends Controller
 
     public function store(Request $request)
     {
-        // Photo OBLIGATOIRE à la création (contrôle backend).
-        $data = $this->valide($request, photoObligatoire: true);
+        // Photo facultative : sans photo, l'avatar par défaut (homme / femme) s'affiche.
+        $data = $this->valide($request);
         $data = $this->gererPhoto($request, $data);
         $membre = Membre::create($data);
         return redirect()->route('membres.show', $membre)

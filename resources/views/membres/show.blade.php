@@ -27,13 +27,7 @@
     <div class="md:col-span-2 space-y-5">
         <div class="bg-white border rounded-xl p-6">
             <div class="flex items-center gap-4">
-                @if ($membre->photo)
-                    <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($membre->photo) }}" alt="{{ $membre->nom_complet }}" class="w-16 h-16 rounded-full object-cover border">
-                @else
-                    <div class="w-16 h-16 rounded-full bg-jci-100 text-jci-700 grid place-items-center text-2xl font-bold">
-                        {{ mb_substr($membre->prenom,0,1) }}{{ mb_substr($membre->nom,0,1) }}
-                    </div>
-                @endif
+                <img src="{{ $membre->photo_url }}" alt="{{ $membre->nom_complet }}" class="w-16 h-16 rounded-full object-cover border">
                 <div>
                     <h1 class="text-2xl font-bold text-jci-900">{{ $membre->nom_complet }}</h1>
                     <p class="text-slate-500">{{ $membre->fonction ?: 'Membre' }}</p>

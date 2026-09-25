@@ -23,6 +23,13 @@ class LoginController extends Controller
 
         // N'authentifier que les comptes actifs.
         if (Auth::attempt($credentials + ['actif' => true], $request->boolean('remember'))) {
+            // Accès membres fermé : seuls l'admin et les postes du CDL entrent.
+            if (! $request->user()->aAccesPlateforme()) {
+                Auth::logout();
+                return back()->withErrors([
+                    'email' => "L'espace membre n'est pas encore ouvert à tous les membres.",
+                ])->onlyInput('email');
+            }
             $request->session()->regenerate();
             Journal::ecrire('LOGIN', 'Auth', $request->user()->id, [], ['ip' => $request->ip()]);
             return redirect()->intended(route('dashboard'));

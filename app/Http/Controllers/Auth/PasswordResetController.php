@@ -24,7 +24,7 @@ class PasswordResetController extends Controller
         // On n'envoie le lien QUE si le compte existe ET est actif :
         // un compte suspendu ne doit pas pouvoir se réactiver via « mot de passe oublié ».
         $user = \App\Models\User::where('email', $request->email)->first();
-        if ($user && $user->actif) {
+        if ($user && $user->actif && $user->aAccesPlateforme()) {
             Password::sendResetLink($request->only('email'));
         }
 

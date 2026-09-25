@@ -20,12 +20,6 @@ return Application::configure(basePath: dirname(__DIR__))
             return $host ? ['^'.preg_quote($host).'$'] : [];
         }, subdomains: false);
 
-        // Derrière un proxy (Vercel, Cloudflare…) : TRUSTED_PROXIES=* dans l'environnement
-        // pour que Laravel voie le HTTPS d'origine. À laisser vide en hébergement direct (LWS).
-        if ($proxies = env('TRUSTED_PROXIES')) {
-            $middleware->trustProxies(at: $proxies === '*' ? '*' : explode(',', $proxies));
-        }
-
         // En-têtes de sécurité HTTP (CSP, anti-clickjacking, HSTS…) — faille M7.
         $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
 

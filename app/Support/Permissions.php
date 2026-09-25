@@ -73,6 +73,26 @@ class Permissions
         'membre'     => [],
     ];
 
+    /**
+     * Super administrateur : UN seul compte, créé par « php artisan jci:installer ».
+     * Il a TOUS les droits (finances comprises) via Gate::before. Ce rôle n'est
+     * jamais attribuable depuis l'interface et ses droits ne se modifient pas.
+     */
+    public const ROLE_SUPER = 'superadmin';
+
+    /** Rôles qui donnent accès à la plateforme même quand l'accès membres est fermé. */
+    public static function rolesAvecAcces(): array
+    {
+        return array_values(array_diff(array_keys(self::ROLES), ['membre']));
+    }
+
+    /** Libellé lisible d'un rôle (super administrateur compris). */
+    public static function libelleRole(?string $role): string
+    {
+        if ($role === self::ROLE_SUPER) return 'Super administrateur';
+        return self::ROLES[$role] ?? (string) $role;
+    }
+
     /** Libellés lisibles des rôles. */
     public const ROLES = [
         'admin'      => 'Administrateur',

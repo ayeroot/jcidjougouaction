@@ -17,6 +17,7 @@ trait Auditable
     /** Champs jamais journalisés (sécurité / confidentialité). */
     protected array $auditExclude = [
         'password', 'remember_token', 'activation_token', 'activation_expire_at',
+        'email_token', 'email_token_expire_at',
         'updated_at', 'created_at',
     ];
 

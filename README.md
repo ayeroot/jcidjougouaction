@@ -17,7 +17,7 @@ cp .env.example .env
 php artisan key:generate
 touch database/database.sqlite
 php artisan migrate --seed
-php artisan storage:link      # indispensable pour afficher les photos/logos téléversés
+php artisan storage:link      
 php artisan serve
 ```
 
@@ -34,22 +34,12 @@ Pour un envoi réel, voir **`SMTP_SETUP.md`**.
 
 ## Comptes de démonstration
 
-Comptes du CDL identifiés par la **fonction**. Mots de passe : aléatoires, générés par le seed (celui de l'admin est affiché dans la console, ou défini par `ADMIN_PASSWORD`). Les autres comptes définissent le leur via le lien d'activation
+Comptes du CDL identifiés par la **fonction**. Mot de passe : `password`
 *(à changer avant toute mise en production).*
 
 | Fonction | Identifiant |
 |----------|-------------|
-| **Administrateur** (crée les comptes, READ partout **sauf Finance**) | `admin@jcidjougou.bj` |
-| Président (voit tout, **ne modifie pas** les finances) | `president.local@jcidjougou.bj` |
-| VP Exécutive (Efficacité, Historique) | `vpe.local@jcidjougou.bj` |
-| VP Relations Ext. (Partenaires) | `vpre.local@jcidjougou.bj` |
-| VP Formations | `vpf.local@jcidjougou.bj` |
-| VP Management (Membres) | `vpm.local@jcidjougou.bj` |
-| VP Croissance (Recrutement) | `vpcd.local@jcidjougou.bj` |
-| VP Projet | `vp-projet.local@jcidjougou.bj` |
-| Trésorier (Finances) | `tresorier.local@jcidjougou.bj` |
-| Secrétaire Général (Archives) | `secretaire.local@jcidjougou.bj` |
-| Membre simple | `karim.orou@example.bj` |
+
 
 ## Modules
 

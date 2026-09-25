@@ -39,6 +39,20 @@ class Membre extends Model
     public function carrieres(): HasMany { return $this->hasMany(Carriere::class); }
     public function cotisations(): HasMany { return $this->hasMany(Cotisation::class); }
 
+    /**
+     * Photo à afficher : la photo envoyée si elle existe, sinon l'avatar par défaut
+     * selon le sexe (F -> avatar féminin, sinon avatar masculin).
+     * Chemin relatif : fonctionne quelle que soit l'adresse du site.
+     */
+    public function getPhotoUrlAttribute(): string
+    {
+        if ($this->photo && \Illuminate\Support\Facades\Storage::disk('public')->exists($this->photo)) {
+            return '/storage/'.ltrim($this->photo, '/');
+        }
+
+        return $this->sexe === 'F' ? '/images/avatars/femme.svg' : '/images/avatars/homme.svg';
+    }
+
     public function getNomCompletAttribute(): string
     {
         return trim("{$this->prenom} {$this->nom}");

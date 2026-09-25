@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\ServiceProvider;
@@ -16,6 +17,14 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Derrière un proxy (Cloudflare…) : lui faire confiance pour voir l'IP et le HTTPS d'origine.
+        if ($proxies = config('jci.trusted_proxies')) {
+            \Illuminate\Http\Middleware\TrustProxies::at($proxies === '*' ? '*' : array_map('trim', explode(',', $proxies)));
+        }
+
+        // Super administrateur (créé par « php artisan jci:installer ») : tous les droits.
+        Gate::before(fn ($user) => method_exists($user, 'estSuperAdmin') && $user->estSuperAdmin() ? true : null);
+
         // Politique de mots de passe unique pour toute l'application :
         // 10 caractères min., lettres + chiffres ; en production, refus des mots de
         // passe apparus dans des fuites connues (Have I Been Pwned, k-anonymat).

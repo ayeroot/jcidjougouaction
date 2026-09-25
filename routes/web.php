@@ -37,6 +37,12 @@ Route::get('/connexion', [LoginController::class, 'show'])->middleware('guest')-
 Route::post('/connexion', [LoginController::class, 'login'])->middleware(['guest', 'throttle:6,1']);
 Route::post('/deconnexion', [LoginController::class, 'logout'])->name('logout');
 
+/* ---------------- Confirmation d'un changement d'email (lien envoyé à la nouvelle adresse) ----------------
+   Sans « auth » : le lien peut être ouvert depuis un autre appareil. Le jeton (64 caractères, haché,
+   24 h, usage unique) suffit à prouver la possession de la nouvelle adresse. */
+Route::get('/email/confirmer/{token}', [\App\Http\Controllers\EmailController::class, 'confirmer'])
+    ->middleware('throttle:10,1')->name('email.confirmer');
+
 /* ---------------- Activation de compte (lien email) ---------------- */
 Route::middleware('guest')->group(function () {
     Route::get('/activation/{token}', [ActivationController::class, 'show'])->name('activation.show');
@@ -59,6 +65,8 @@ Route::middleware('auth')->prefix('espace')->group(function () {
     Route::get('/profil', [ProfilController::class, 'edit'])->name('profil.edit');
     Route::put('/profil', [ProfilController::class, 'update'])->name('profil.update');
     Route::put('/profil/mot-de-passe', [ProfilController::class, 'motDePasse'])->name('profil.password');
+    Route::put('/profil/email', [\App\Http\Controllers\EmailController::class, 'demander'])
+        ->middleware('throttle:5,60')->name('profil.email');
 
     /* Anniversaires : ouvert à tous les membres connectés */
     Route::get('/anniversaires', [AnniversaireController::class, 'index'])->name('anniversaires.index');

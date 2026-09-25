@@ -54,10 +54,10 @@
         <h2 class="font-semibold text-jci-900 mb-3">Membres du CDL ({{ $affectations->count() }})</h2>
         @forelse ($affectations as $poste => $aff)
             <div class="flex items-center gap-3 py-2 border-b last:border-0">
-                @if ($aff->membre?->photo)
-                    <img src="{{ $stImg($aff->membre->photo) }}" class="w-9 h-9 rounded-full object-cover border">
+                @if ($aff->membre)
+                    <img src="{{ $aff->membre->photo_url }}" alt="" class="w-9 h-9 rounded-full object-cover border">
                 @else
-                    <div class="w-9 h-9 rounded-full bg-jci-100 text-jci-700 grid place-items-center text-xs font-bold">{{ mb_substr($aff->membre?->nom ?? '?',0,2) }}</div>
+                    <div class="w-9 h-9 rounded-full bg-jci-100 text-jci-700 grid place-items-center text-xs font-bold">?</div>
                 @endif
                 <div><div class="text-sm font-medium">{{ $poste }}</div><div class="text-xs text-slate-400">{{ $aff->membre?->nom_complet ?: '—' }}</div></div>
             </div>
