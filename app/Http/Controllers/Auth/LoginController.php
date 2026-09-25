@@ -3,7 +3,9 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Support\Journal;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
@@ -19,18 +21,24 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
 
-        // Refuser un compte désactivé (règle CDL : un seul compte actif par poste).
-        $user = \App\Models\User::where('email', $credentials['email'])->first();
-        if ($user && ! $user->actif) {
-            return back()->withErrors([
-                'email' => "Ce compte est désactivé. Contactez l'administrateur.",
-            ])->onlyInput('email');
-        }
-
         // N'authentifier que les comptes actifs.
         if (Auth::attempt($credentials + ['actif' => true], $request->boolean('remember'))) {
             $request->session()->regenerate();
+            Journal::ecrire('LOGIN', 'Auth', $request->user()->id, [], ['ip' => $request->ip()]);
             return redirect()->intended(route('dashboard'));
+        }
+
+        // Faible (énumération) — le message « compte désactivé » n'est affiché qu'à
+        // quelqu'un qui connaît déjà le bon mot de passe ; sinon, message générique.
+        $user = \App\Models\User::where('email', $credentials['email'])->first();
+        Journal::ecrire('LOGIN_ECHEC', 'Auth', $user?->id, [], [
+            'email' => $credentials['email'], 'ip' => $request->ip(),
+        ], $user);
+
+        if ($user && ! $user->actif && Hash::check($credentials['password'], $user->password)) {
+            return back()->withErrors([
+                'email' => "Ce compte est désactivé. Contactez l'administrateur.",
+            ])->onlyInput('email');
         }
 
         return back()->withErrors([

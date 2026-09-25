@@ -61,7 +61,7 @@ class MandatController extends Controller
         return $request->validate([
             'annee'         => ['required', 'string', 'max:20'],
             'theme'         => ['nullable', 'string', 'max:255'],
-            'couleur'       => ['nullable', 'string', 'max:20'],
+            'couleur'       => ['nullable', 'regex:/^#[0-9a-fA-F]{6}$/'], // injecté dans un style="" : hexadécimal strict
             'date_debut'    => ['nullable', 'date'],
             'date_fin'      => ['nullable', 'date'],
             'logo'          => ['nullable', 'image', 'max:2048'],

@@ -19,5 +19,9 @@ class Mandat extends Model
     public static function actif(): ?self { return static::where('actif', true)->first(); }
 
     /** Couleur du mandat (ou couleur aqua par défaut). */
-    public function couleurOuDefaut(): string { return $this->couleur ?: '#0891b2'; }
+    public function couleurOuDefaut(): string
+    {
+        // Défense en profondeur : seule une couleur hexadécimale valide atteint l'attribut style.
+        return preg_match('/^#[0-9a-fA-F]{6}$/', (string) $this->couleur) ? $this->couleur : '#0891b2';
+    }
 }

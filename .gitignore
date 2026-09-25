@@ -14,7 +14,7 @@
 /.zed
 /auth.json
 /node_modules
-/public/build
+# /public/build est versionné : Vercel et l'hébergement mutualisé n'exécutent pas npm.
 /public/fonts-manifest.dev.json
 /public/hot
 /public/storage

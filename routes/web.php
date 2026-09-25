@@ -26,7 +26,10 @@ use App\Http\Controllers\Admin\RoleController;
 /* ---------------- Zone publique (vitrine) ---------------- */
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/inscription', [InscriptionController::class, 'create'])->name('inscription.create');
-Route::post('/inscription', [InscriptionController::class, 'store'])->name('inscription.store');
+// M4 — 10 candidatures max. par heure et par adresse IP (large, car beaucoup de
+// candidats peuvent partager la même IP : cybercafé, réseau de l'université…).
+Route::post('/inscription', [InscriptionController::class, 'store'])
+    ->middleware('throttle:10,60')->name('inscription.store');
 Route::get('/inscription/merci', [InscriptionController::class, 'merci'])->name('inscription.merci');
 
 /* ---------------- Authentification ---------------- */

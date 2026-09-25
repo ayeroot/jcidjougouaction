@@ -51,6 +51,12 @@ class PostulantController extends Controller
             'promotion' => ['required', 'string', 'max:255'],
         ]);
 
+        // M2 — l'email est unique : on refuse une conversion qui créerait un doublon.
+        if ($postulant->email && (Membre::where('email', $postulant->email)->exists()
+                || \App\Models\User::where('email', $postulant->email)->exists())) {
+            return back()->with('ok', "L'email {$postulant->email} est déjà utilisé par un membre ou un compte : vérifiez qu'il ne s'agit pas d'un doublon.");
+        }
+
         $membre = Membre::create([
             'nom'            => $postulant->nom,
             'prenom'         => $postulant->prenom,

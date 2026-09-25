@@ -4,11 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Connexion — JCI Djougou Action</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = { theme: { extend: { colors: { jci: {
-            100:'#cffafe', 600:'#0891b2', 700:'#0e7490', 900:'#155e75' } } } } }
-    </script>
+    {{-- Styles compilés par Vite (npm run build) — plus aucun script tiers (faille M6). --}}
+    @vite('resources/css/app.css')
 </head>
 <body class="bg-slate-100 min-h-screen grid place-items-center px-4">
     <div class="w-full max-w-md">

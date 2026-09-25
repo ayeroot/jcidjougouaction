@@ -11,11 +11,12 @@
     </div>
     <div>
         <label class="block text-sm font-medium mb-1">Nouveau mot de passe</label>
-        <input type="password" name="password" required minlength="8" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-jci-600 outline-none">
+        <input type="password" name="password" required minlength="10" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-jci-600 outline-none">
+        <p class="text-xs text-slate-500 mt-1">10 caractères minimum, avec des lettres et des chiffres.</p>
     </div>
     <div>
         <label class="block text-sm font-medium mb-1">Confirmer</label>
-        <input type="password" name="password_confirmation" required minlength="8" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-jci-600 outline-none">
+        <input type="password" name="password_confirmation" required minlength="10" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-jci-600 outline-none">
     </div>
     <button class="w-full bg-jci-900 text-white font-semibold py-2.5 rounded-lg hover:bg-jci-700">Réinitialiser</button>
 </form>

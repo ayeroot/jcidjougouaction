@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Support\Journal;
 use App\Support\Permissions;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -36,14 +37,28 @@ class RoleController extends Controller
             $perms[] = 'utilisateurs.gerer';
         }
 
+        // Séparation des pouvoirs (M1) : les permissions financières restent
+        // réservées au Président et au Trésorier — l'admin ne peut pas se les octroyer.
+        $refusees = array_values(array_diff($perms, Permissions::filtrerFinances($perms, $role->name)));
+        $perms = Permissions::filtrerFinances($perms, $role->name);
+
+        $avant = $role->permissions->pluck('name')->sort()->values()->all();
         $role->syncPermissions($perms);
-        return back()->with('ok', "Permissions du rôle « ".(Permissions::ROLES[$role->name] ?? $role->name)." » mises à jour.");
+        Journal::ecrire('ROLE_PERMISSIONS', 'Spatie\\Permission\\Models\\Role', $role->id,
+            ['permissions' => implode(', ', $avant)], ['permissions' => implode(', ', collect($perms)->sort()->all())]);
+
+        $msg = "Permissions du rôle « ".(Permissions::ROLES[$role->name] ?? $role->name)." » mises à jour.";
+        if ($refusees) {
+            $msg .= " Ignorées (réservées au Président / Trésorier) : ".implode(', ', $refusees).'.';
+        }
+        return back()->with('ok', $msg);
     }
 
     /** Réinitialise un rôle à ses permissions par défaut (définies dans le code). */
     public function reset(Role $role)
     {
         $role->syncPermissions(Permissions::DEFAUTS_ROLES[$role->name] ?? []);
+        Journal::ecrire('ROLE_RESET', 'Spatie\\Permission\\Models\\Role', $role->id);
         return back()->with('ok', "Rôle « ".(Permissions::ROLES[$role->name] ?? $role->name)." » réinitialisé aux valeurs par défaut.");
     }
 }

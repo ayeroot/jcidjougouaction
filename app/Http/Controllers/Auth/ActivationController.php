@@ -25,7 +25,7 @@ class ActivationController extends Controller
     {
         $data = $request->validate([
             'token'    => ['required', 'string'],
-            'password' => ['required', 'confirmed', 'min:8'],
+            'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
         ]);
 
         $user = $this->comptes->parToken($data['token']);

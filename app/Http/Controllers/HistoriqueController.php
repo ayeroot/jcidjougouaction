@@ -24,11 +24,28 @@ class HistoriqueController extends Controller
         'App\\Models\\Mandat'        => 'Mandat',
         'App\\Models\\User'          => 'Compte utilisateur',
         'App\\Models\\AffectationCdl'=> 'Affectation CDL',
+        'Spatie\\Permission\\Models\\Role' => 'Rôle',
+        'Auth'                       => 'Connexion',
+    ];
+
+    /** Entités financières : visibles dans le journal uniquement avec « finances.voir ». */
+    public const ENTITES_FINANCES = [
+        'App\\Models\\Cotisation',
+        'App\\Models\\Contribution',
+        'App\\Models\\Depense',
     ];
 
     public function index()
     {
-        $logs = AuditLog::with('user')->latest()->paginate(40);
+        $query = AuditLog::with('user')->latest();
+
+        // M3 — Le journal ne doit pas contourner le cloisonnement des finances :
+        // sans « finances.voir », les opérations financières sont masquées.
+        if (! auth()->user()->can('finances.voir')) {
+            $query->whereNotIn('auditable_type', self::ENTITES_FINANCES);
+        }
+
+        $logs = $query->paginate(40);
         return view('historique.index', compact('logs'));
     }
 }

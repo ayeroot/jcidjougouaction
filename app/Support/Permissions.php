@@ -88,6 +88,28 @@ class Permissions
         'membre'     => 'Membre',
     ];
 
+    /**
+     * Permissions financières : elles ne peuvent être portées QUE par ces rôles.
+     * Elles ne sont jamais attribuables en permission directe, ni au rôle admin.
+     */
+    public const PERMISSIONS_FINANCES = ['finances.voir', 'finances.gerer'];
+    public const ROLES_FINANCES = ['president', 'tresorier'];
+
+    /**
+     * Rôles sensibles : attribués uniquement via l'affectation du CDL (Mandats),
+     * jamais depuis l'écran « Utilisateurs » de l'administrateur.
+     */
+    public const ROLES_CDL_SENSIBLES = ['president', 'tresorier'];
+
+    /** Retire les permissions financières d'une liste si le rôle n'y a pas droit. */
+    public static function filtrerFinances(array $perms, ?string $role = null): array
+    {
+        if ($role !== null && in_array($role, self::ROLES_FINANCES, true)) {
+            return array_values($perms);
+        }
+        return array_values(array_diff($perms, self::PERMISSIONS_FINANCES));
+    }
+
     public static function slugs(): array
     {
         return array_keys(self::CATALOGUE);

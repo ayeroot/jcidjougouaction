@@ -2,8 +2,30 @@
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
+@source '../views';
 
+/* Couleurs JCI (reprises de l'ancienne config du CDN Tailwind). */
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --color-jci-50:  #ecfeff;
+    --color-jci-100: #cffafe;
+    --color-jci-600: #0891b2;
+    --color-jci-700: #0e7490;
+    --color-jci-900: #155e75;
+}
+
+/*
+ * Compatibilité Tailwind v3 (CDN) -> v4 (build) : on garde le rendu d'avant.
+ * En v4, « border » sans couleur prend la couleur du texte et les boutons n'ont
+ * plus le curseur main : on rétablit les valeurs par défaut de la v3.
+ */
+@layer base {
+    *, ::after, ::before, ::backdrop, ::file-selector-button {
+        border-color: var(--color-gray-200, currentcolor);
+    }
+    input::placeholder, textarea::placeholder {
+        color: var(--color-gray-400);
+    }
+    button:not(:disabled), [role="button"]:not(:disabled) {
+        cursor: pointer;
+    }
 }

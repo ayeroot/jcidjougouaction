@@ -4,14 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Espace') — JCI Djougou Action</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: { extend: { colors: { jci: {
-                50:'#ecfeff', 100:'#cffafe', 600:'#0891b2', 700:'#0e7490', 900:'#155e75'
-            } } } }
-        }
-    </script>
+    {{-- Styles compilés par Vite (npm run build) — plus aucun script tiers (faille M6). --}}
+    @vite('resources/css/app.css')
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased">
 @php $u = auth()->user(); @endphp
@@ -33,62 +27,64 @@
         </div>
         <nav class="flex-1 px-3 py-4 space-y-1 text-sm overflow-y-auto">
             @php
-                function navlink($route, $label, $active) {
+                // Closure (et non « function navlink() ») : une fonction nommée déclarée dans
+                // une vue plante si la vue est rendue deux fois dans le même processus.
+                $navlink = function ($route, $label, $active) {
                     $base = 'flex items-center gap-3 px-3 py-2 rounded-lg ';
                     $cls = $active ? 'bg-white/15 font-semibold' : 'hover:bg-white/10 text-slate-200';
-                    return '<a href="'.$route.'" class="'.$base.$cls.'">'.$label.'</a>';
-                }
+                    return '<a href="'.e($route).'" class="'.$base.$cls.'">'.e($label).'</a>';
+                };
             @endphp
 
-            {!! navlink(route('dashboard'), 'Tableau de bord', request()->routeIs('dashboard')) !!}
-            {!! navlink(route('membres.index'), 'Membres', request()->routeIs('membres.*')) !!}
-            {!! navlink(route('anniversaires.index'), '🎂 Anniversaires', request()->routeIs('anniversaires.*')) !!}
+            {!! $navlink(route('dashboard'), 'Tableau de bord', request()->routeIs('dashboard')) !!}
+            {!! $navlink(route('membres.index'), 'Membres', request()->routeIs('membres.*')) !!}
+            {!! $navlink(route('anniversaires.index'), '🎂 Anniversaires', request()->routeIs('anniversaires.*')) !!}
 
             @can('postulants.voir')
-                {!! navlink(route('postulants.index'), 'Recrutement', request()->routeIs('postulants.*')) !!}
+                {!! $navlink(route('postulants.index'), 'Recrutement', request()->routeIs('postulants.*')) !!}
             @endcan
 
             @can('formations.voir')
-                {!! navlink(route('formations.index'), 'Formations', request()->routeIs('formations.*')) !!}
+                {!! $navlink(route('formations.index'), 'Formations', request()->routeIs('formations.*')) !!}
             @endcan
 
             @can('finances.voir')
-                {!! navlink(route('finances.index'), 'Finances', request()->routeIs('finances.*')) !!}
+                {!! $navlink(route('finances.index'), 'Finances', request()->routeIs('finances.*')) !!}
             @endcan
 
             @can('projets.gerer')
-                {!! navlink(route('projets.index'), 'Projets', request()->routeIs('projets.*')) !!}
+                {!! $navlink(route('projets.index'), 'Projets', request()->routeIs('projets.*')) !!}
             @endcan
 
             @can('partenaires.voir')
-                {!! navlink(route('partenaires.index'), 'Partenaires', request()->routeIs('partenaires.*')) !!}
+                {!! $navlink(route('partenaires.index'), 'Partenaires', request()->routeIs('partenaires.*')) !!}
             @endcan
 
             @can('archives.voir')
-                {!! navlink(route('archives.index'), 'Archives', request()->routeIs('archives.*')) !!}
+                {!! $navlink(route('archives.index'), 'Archives', request()->routeIs('archives.*')) !!}
             @endcan
 
             @can('efficacite.voir')
-                {!! navlink(route('efficacite.index'), '100% efficacité', request()->routeIs('efficacite.*')) !!}
+                {!! $navlink(route('efficacite.index'), '100% efficacité', request()->routeIs('efficacite.*')) !!}
             @endcan
 
             @can('historique.voir')
-                {!! navlink(route('historique.index'), 'Historique', request()->routeIs('historique.*')) !!}
+                {!! $navlink(route('historique.index'), 'Historique', request()->routeIs('historique.*')) !!}
             @endcan
 
             @can('mandats.voir')
-                {!! navlink(route('mandats.index'), 'Mandats', request()->routeIs('mandats.*')) !!}
+                {!! $navlink(route('mandats.index'), 'Mandats', request()->routeIs('mandats.*')) !!}
             @endcan
 
             @canany(['utilisateurs.gerer', 'vitrine.gerer'])
                 <div class="pt-4 mt-4 border-t border-white/10 text-xs uppercase tracking-wide text-slate-400 px-3 mb-1">Administration</div>
             @endcanany
             @can('utilisateurs.gerer')
-                {!! navlink(route('admin.users.index'), 'Utilisateurs', request()->routeIs('admin.users.*')) !!}
-                {!! navlink(route('admin.roles.index'), 'Rôles & permissions', request()->routeIs('admin.roles.*')) !!}
+                {!! $navlink(route('admin.users.index'), 'Utilisateurs', request()->routeIs('admin.users.*')) !!}
+                {!! $navlink(route('admin.roles.index'), 'Rôles & permissions', request()->routeIs('admin.roles.*')) !!}
             @endcan
             @can('vitrine.gerer')
-                {!! navlink(route('admin.vitrine.edit'), 'Site vitrine', request()->routeIs('admin.vitrine.*')) !!}
+                {!! $navlink(route('admin.vitrine.edit'), 'Site vitrine', request()->routeIs('admin.vitrine.*')) !!}
             @endcan
         </nav>
     </aside>

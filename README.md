@@ -34,7 +34,7 @@ Pour un envoi réel, voir **`SMTP_SETUP.md`**.
 
 ## Comptes de démonstration
 
-Comptes du CDL identifiés par la **fonction**. Mot de passe : `password`
+Comptes du CDL identifiés par la **fonction**. Mots de passe : aléatoires, générés par le seed (celui de l'admin est affiché dans la console, ou défini par `ADMIN_PASSWORD`). Les autres comptes définissent le leur via le lien d'activation
 *(à changer avant toute mise en production).*
 
 | Fonction | Identifiant |

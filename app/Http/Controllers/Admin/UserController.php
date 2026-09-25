@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Membre;
 use App\Services\AccountService;
+use App\Support\Journal;
 use App\Support\Permissions;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -52,6 +53,12 @@ class UserController extends Controller
             'role'      => ['required', Rule::in(array_keys(self::ROLES))],
         ]);
 
+        // M1 — Président / Trésorier : uniquement via l'affectation du CDL (Mandats).
+        if (in_array($data['role'], Permissions::ROLES_CDL_SENSIBLES, true)) {
+            return back()->withInput()->withErrors(['role' =>
+                "Les postes Président et Trésorier s'attribuent uniquement via l'affectation du CDL (menu Mandats)."]);
+        }
+
         $membre = Membre::findOrFail($data['membre_id']);
         $res = $this->comptes->creerPourMembre($membre, $data['role']);
 
@@ -96,20 +103,54 @@ class UserController extends Controller
             'permissions.*' => [Rule::in(Permissions::slugs())],
         ]);
 
-        $user->update(['email' => $data['email']]);
+        $estMoi       = $user->id === auth()->id();
+        $roleActuel   = $user->getRoleNames()->first();
+        $compteSensible = in_array($roleActuel, Permissions::ROLES_CDL_SENSIBLES, true);
+
+        // M1 — Changer l'email d'un autre compte permettrait de le détourner
+        // (nouvel email + « mot de passe oublié »). Interdit pour les comptes
+        // Président / Trésorier ; pour les autres, l'ancienne adresse est prévenue
+        // et toutes les sessions du compte sont fermées.
+        if (! $estMoi && $data['email'] !== $user->email) {
+            if ($compteSensible) {
+                return back()->withInput()->withErrors(['email' =>
+                    "L'email d'un compte Président / Trésorier ne peut pas être modifié depuis l'administration."]);
+            }
+            $ancien = $user->email;
+            $user->update(['email' => $data['email']]);
+            $this->comptes->fermerSessions($user);
+            $this->comptes->prevenirChangementEmail($user, $ancien);
+            Journal::ecrire('EMAIL_CHANGE', User::class, $user->id, ['email' => $ancien], ['email' => $data['email']]);
+        } elseif ($estMoi) {
+            $user->update(['email' => $data['email']]);
+        }
 
         // Sécurité : un administrateur ne peut pas modifier SON PROPRE rôle ni
         // ses propres permissions (protection contre l'auto-élévation / auto-blocage).
-        if ($user->id === auth()->id()) {
+        if ($estMoi) {
             return redirect()->route('admin.users.index')
                 ->with('ok', "Email mis à jour. Vous ne pouvez pas modifier votre propre rôle ni vos propres permissions.");
         }
+
+        // M1 — Président / Trésorier s'attribuent et se retirent uniquement via le CDL (Mandats).
+        $nouveauSensible = in_array($data['role'], Permissions::ROLES_CDL_SENSIBLES, true);
+        if (($compteSensible || $nouveauSensible) && $data['role'] !== $roleActuel) {
+            return back()->withInput()->withErrors(['role' =>
+                "Les postes Président et Trésorier s'attribuent uniquement via l'affectation du CDL (menu Mandats)."]);
+        }
+
+        $avant = ['role' => $roleActuel, 'permissions' => $user->getDirectPermissions()->pluck('name')->implode(', ')];
 
         $user->syncRoles([$data['role']]);
         $this->comptes->desactiverAnciensDuRole($data['role'], $user->id);
 
         // Permissions supplémentaires (directes), en plus de celles du rôle.
-        $user->syncPermissions($data['permissions'] ?? []);
+        // Les permissions financières ne sont JAMAIS attribuables en direct.
+        $perms = Permissions::filtrerFinances($data['permissions'] ?? []);
+        $user->syncPermissions($perms);
+
+        Journal::ecrire('USER_PRIVILEGES', User::class, $user->id, $avant,
+            ['role' => $data['role'], 'permissions' => implode(', ', $perms)]);
 
         return redirect()->route('admin.users.index')->with('ok', "Privilèges de {$user->name} mis à jour.");
     }
@@ -135,6 +176,9 @@ class UserController extends Controller
             return back()->with('ok', "Vous ne pouvez pas suspendre votre propre compte.");
         }
         $user->update(['actif' => ! $user->actif]);
+        if (! $user->actif) {
+            $this->comptes->fermerSessions($user); // coupe les sessions et le « se souvenir de moi »
+        }
         return back()->with('ok', $user->actif ? 'Compte réactivé.' : 'Compte suspendu.');
     }
 

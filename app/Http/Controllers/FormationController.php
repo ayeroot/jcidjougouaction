@@ -139,6 +139,12 @@ class FormationController extends Controller
     /** Formateur existant sélectionné, ou nouveau formateur saisi. */
     private function resoudreFormateur(Request $request): ?int
     {
+        $request->validate([
+            'formateur_id'            => ['nullable', 'integer', 'exists:formateurs,id'],
+            'nouveau_formateur'       => ['nullable', 'string', 'max:255'],
+            'nouveau_formateur_type'  => ['nullable', 'in:interne,externe'],
+        ]);
+
         if ($request->filled('nouveau_formateur')) {
             $f = Formateur::create([
                 'nom'  => $request->input('nouveau_formateur'),

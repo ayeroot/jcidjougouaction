@@ -2,7 +2,7 @@
 @section('title', 'Historique des activités')
 @section('content')
 @php
-    $actionLabel = ['CREATE'=>'Création','UPDATE'=>'Modification','DELETE'=>'Suppression'];
+    $actionLabel = ['CREATE'=>'Création','UPDATE'=>'Modification','DELETE'=>'Suppression','LOGIN'=>'Connexion','LOGIN_ECHEC'=>'Connexion échouée','ROLE_PERMISSIONS'=>'Permissions du rôle','ROLE_RESET'=>'Rôle réinitialisé','USER_PRIVILEGES'=>'Privilèges modifiés','EMAIL_CHANGE'=>'Email modifié'];
     $actionBadge = ['CREATE'=>'bg-green-100 text-green-700','UPDATE'=>'bg-amber-100 text-amber-700','DELETE'=>'bg-red-100 text-red-700'];
     $roleLabels  = \App\Http\Controllers\Admin\UserController::ROLES;
     $entites     = \App\Http\Controllers\HistoriqueController::ENTITES;
@@ -31,7 +31,7 @@
                     <td class="px-4 py-3"><span class="text-xs px-2 py-1 rounded {{ $actionBadge[$log->action] ?? '' }}">{{ $actionLabel[$log->action] ?? $log->action }}</span></td>
                     <td class="px-4 py-3 text-slate-700 whitespace-nowrap">{{ $entites[$log->auditable_type] ?? class_basename($log->auditable_type) }} #{{ $log->auditable_id }}</td>
                     <td class="px-4 py-3">
-                        @if ($log->action === 'UPDATE' && $log->new_values)
+                        @if (in_array($log->action, ['UPDATE','ROLE_PERMISSIONS','USER_PRIVILEGES','EMAIL_CHANGE']) && $log->new_values)
                             <details class="text-xs text-slate-500">
                                 <summary class="cursor-pointer text-jci-600">{{ count($log->new_values) }} champ(s) modifié(s)</summary>
                                 <ul class="mt-1 space-y-0.5">

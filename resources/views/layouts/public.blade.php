@@ -4,15 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'JCI Djougou Action')</title>
-    {{-- Tailwind via CDN pour la phase de développement. En production, on passe au build Vite (voir README). --}}
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: { extend: { colors: { jci: {
-                50:'#ecfeff', 100:'#cffafe', 600:'#0891b2', 700:'#0e7490', 900:'#155e75'
-            } } } }
-        }
-    </script>
+    {{-- Styles compilés par Vite (npm run build) — plus aucun script tiers (faille M6). --}}
+    @vite('resources/css/app.css')
 </head>
 <body class="bg-white text-slate-800 antialiased">
 

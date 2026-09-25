@@ -4,6 +4,7 @@ namespace App\Services;
 use App\Mail\ActivationCompte;
 use App\Models\Membre;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -33,7 +34,15 @@ class AccountService
         }
 
         // Un membre = au plus un compte (pas de doublon).
-        $user = User::where('membre_id', $membre->id)->orWhere('email', $membre->email)->first();
+        // M2 — Le compte est retrouvé UNIQUEMENT par le lien membre_id. Rechercher aussi
+        // par email permettait, en donnant à un membre l'email d'un autre compte
+        // (ex. l'admin), de réécrire le rôle de ce compte via le CDL.
+        $user = User::where('membre_id', $membre->id)->first();
+
+        if (! $user && User::where('email', $membre->email)->exists()) {
+            return ['user' => null, 'email_envoye' => false,
+                    'message' => "L'adresse {$membre->email} est déjà utilisée par un autre compte : corrigez l'email de la fiche membre."];
+        }
 
         if (! $user) {
             $user = new User([
@@ -86,6 +95,7 @@ class AccountService
         User::role($role)->where('id', '!=', $sauf)->where('actif', true)
             ->get()->each(function (User $autre) {
                 $autre->forceFill(['actif' => false])->save();
+                $this->fermerSessions($autre);
             });
     }
 
@@ -113,5 +123,34 @@ class AccountService
         return User::where('activation_token', hash('sha256', $token))
             ->where('activation_expire_at', '>', now())
             ->first();
+    }
+
+    /**
+     * Ferme toutes les sessions d'un compte : sessions en base + cookie
+     * « se souvenir de moi » (le remember_token change, l'ancien cookie ne vaut plus rien).
+     */
+    public function fermerSessions(User $user, ?string $saufSession = null): void
+    {
+        $user->forceFill(['remember_token' => Str::random(60)])->saveQuietly();
+
+        if (config('session.driver') === 'database') {
+            DB::table(config('session.table', 'sessions'))->where('user_id', $user->id)
+                ->when($saufSession, fn ($q) => $q->where('id', '!=', $saufSession))->delete();
+        }
+    }
+
+    /** Prévient l'ancienne adresse qu'un administrateur a changé l'email du compte. */
+    public function prevenirChangementEmail(User $user, string $ancienEmail): void
+    {
+        try {
+            Mail::raw(
+                "Bonjour {$user->name},\n\nL'adresse email de votre compte JCI Djougou Action vient d'être "
+                ."modifiée par un administrateur (nouvelle adresse : {$user->email}).\n\n"
+                ."Si vous n'êtes pas à l'origine de cette demande, contactez immédiatement le Président local.",
+                fn ($m) => $m->to($ancienEmail)->subject('Changement de l\'email de votre compte — JCI Djougou Action')
+            );
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 }

@@ -54,6 +54,23 @@
                 <textarea name="motivation" rows="4" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-jci-600 outline-none">{{ old('motivation') }}</textarea>
             </div>
         </div>
+
+        {{-- Anti-robot (pot de miel) : champ invisible pour un humain, rempli par les robots. --}}
+        <div class="hidden" aria-hidden="true">
+            <label>Site web <input type="text" name="site_web" value="" tabindex="-1" autocomplete="off"></label>
+        </div>
+
+        {{-- Consentement (loi n° 2017-20 portant Code du numérique en République du Bénin) --}}
+        <label class="flex items-start gap-3 text-sm text-slate-600">
+            <input type="checkbox" name="consentement" value="1" required class="mt-1" @checked(old('consentement'))>
+            <span>
+                J'accepte que JCI Djougou Action enregistre ces informations pour traiter ma candidature.
+                Elles ne sont accessibles qu'au bureau chargé du recrutement et ne sont pas transmises à des tiers.
+                Je peux demander leur consultation, leur correction ou leur suppression en écrivant à l'OLM.
+            </span>
+        </label>
+        @error('consentement') <p class="text-sm text-red-600">{{ $message }}</p> @enderror
+
         <button class="w-full bg-jci-900 text-white font-semibold py-3 rounded-lg hover:bg-jci-700">
             Envoyer ma candidature
         </button>

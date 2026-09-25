@@ -54,7 +54,7 @@ class ProfilController extends Controller
     {
         $data = $request->validate([
             'actuel'   => ['required'],
-            'password' => ['required', 'confirmed', PasswordRule::min(8)],
+            'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
         ]);
 
         if (! Hash::check($data['actuel'], $request->user()->password)) {
@@ -62,6 +62,9 @@ class ProfilController extends Controller
         }
 
         $request->user()->update(['password' => Hash::make($data['password'])]);
+
+        // Déconnecte les autres appareils (sessions + « se souvenir de moi »), garde celle-ci.
+        app(\App\Services\AccountService::class)->fermerSessions($request->user(), $request->session()->getId());
         return back()->with('ok', 'Mot de passe modifié.');
     }
 }

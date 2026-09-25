@@ -63,7 +63,7 @@ class MembreController extends Controller
 
     public function update(Request $request, Membre $membre)
     {
-        $data = $this->valide($request);
+        $data = $this->valide($request, membre: $membre);
         $data = $this->gererPhoto($request, $data, $membre);
         $membre->update($data);
         return redirect()->route('membres.show', $membre)
@@ -90,14 +90,19 @@ class MembreController extends Controller
         return redirect()->route('membres.index')->with('ok', 'Membre supprimé.');
     }
 
-    private function valide(Request $request, bool $photoObligatoire = false): array
+    private function valide(Request $request, bool $photoObligatoire = false, ?Membre $membre = null): array
     {
         return $request->validate([
             'nom'            => ['required', 'string', 'max:255'],
             'prenom'         => ['required', 'string', 'max:255'],
             'date_naissance' => ['nullable', 'date'],
             'sexe'           => ['nullable', 'in:M,F'],
-            'email'          => ['nullable', 'email', 'max:255'],
+            // M2 — email unique parmi les membres, et non utilisé par le compte d'une autre personne.
+            'email'          => ['nullable', 'email', 'max:255',
+                                 \Illuminate\Validation\Rule::unique('membres', 'email')->ignore($membre?->id),
+                                 \Illuminate\Validation\Rule::unique('users', 'email')->where(
+                                     fn ($q) => $q->where(fn ($q) => $q->whereNull('membre_id')->orWhere('membre_id', '!=', $membre?->id ?? 0))
+                                 )],
             'telephone'      => ['nullable', 'string', 'max:50'],
             'fonction'       => ['nullable', \Illuminate\Validation\Rule::in(\App\Models\Membre::FONCTIONS)],
             'promotion'      => ['nullable', 'string', 'max:255'],

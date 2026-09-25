@@ -125,7 +125,7 @@ php artisan migrate --force
 php artisan db:seed --force         # crée le compte administrateur + le catalogue de permissions
 ```
 
-> Le seed crée l'administrateur `admin@jcidjougou.bj` (mot de passe `password`) : **changez-le
+> Le seed crée l'administrateur `admin@jcidjougou.bj` avec le mot de passe `ADMIN_PASSWORD` (variable d'environnement) ou, à défaut, un mot de passe aléatoire affiché une seule fois dans la console : **changez-le
 > immédiatement** après la première connexion (voir étape 11).
 
 ## 5. Configuration du projet Vercel
@@ -169,7 +169,7 @@ Ou simplement `git push` (Vercel déploie automatiquement).
 ## 11. Configuration du premier administrateur
 
 1. Allez sur `https://votre-projet.vercel.app/connexion`.
-2. Connectez-vous avec `admin@jcidjougou.bj` / `password`.
+2. Connectez-vous avec `admin@jcidjougou.bj` et le mot de passe affiché par le seed (ou `ADMIN_PASSWORD`).
 3. Ouvrez **Mon profil** (en haut à droite) → **Changer mon mot de passe** et définissez un mot
    de passe fort.
 4. (Optionnel) Créez d'autres comptes depuis **Administration → Utilisateurs**.

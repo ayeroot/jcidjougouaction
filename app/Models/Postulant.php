@@ -12,6 +12,7 @@ class Postulant extends Model
     public const STATUTS = ['nouveau', 'contacte', 'en_formation', 'examen', 'admis', 'rejete'];
 
     protected $fillable = [
+        'consentement_at',
         'nom', 'prenom', 'date_naissance', 'sexe', 'email', 'telephone',
         'ville', 'motivation', 'statut', 'membre_id',
     ];

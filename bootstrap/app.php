@@ -10,11 +10,24 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-        ->withMiddleware(function (Middleware $middleware): void {
+    ->withMiddleware(function (Middleware $middleware): void {
         // N'accepte que l'hôte défini dans APP_URL (bloque l'empoisonnement via l'en-tête Host).
-        $middleware->trustHosts(at: static fn () => array_filter([
-            parse_url(config('app.url'), PHP_URL_HOST),
-        ]));
+        // Les motifs sont des expressions régulières : l'hôte est échappé ET ancré (^…$),
+        // sinon « jci.bj » accepterait aussi « jci.bj.attaquant.com ».
+        $middleware->trustHosts(at: static function () {
+            $url  = (string) config('app.url');
+            $host = parse_url(str_contains($url, '://') ? $url : 'https://'.$url, PHP_URL_HOST);
+            return $host ? ['^'.preg_quote($host).'$'] : [];
+        }, subdomains: false);
+
+        // Derrière un proxy (Vercel, Cloudflare…) : TRUSTED_PROXIES=* dans l'environnement
+        // pour que Laravel voie le HTTPS d'origine. À laisser vide en hébergement direct (LWS).
+        if ($proxies = env('TRUSTED_PROXIES')) {
+            $middleware->trustProxies(at: $proxies === '*' ? '*' : explode(',', $proxies));
+        }
+
+        // En-têtes de sécurité HTTP (CSP, anti-clickjacking, HSTS…) — faille M7.
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
 
         // Alias des middlewares de gestion des rôles (spatie/laravel-permission)
         $middleware->alias([
